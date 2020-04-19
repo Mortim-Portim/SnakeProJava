@@ -18,4 +18,4 @@ To run SnakePro on Linux, execute:
 To run SnakePro on Windows, execute:
 
 	SnakePro.bat
-![alt text]()
+![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro1.png)
