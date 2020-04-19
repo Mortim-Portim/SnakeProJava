@@ -7,11 +7,6 @@ Install Java on Linux:
 	if not install java from the following file:
 		jre-8u251-linux-x64.tar.gz
 
-To run SnakePro execute
-	
-	SnakePro.sh
-
-
 Install Java on Windows:
 
 	double click on "jre-8u251-windows-x64.exe"
@@ -21,3 +16,7 @@ Install Java on Windows:
 To run SnakePro double click on
 
 	SnakePro.bat
+
+To run SnakePro execute
+	
+	SnakePro.sh
