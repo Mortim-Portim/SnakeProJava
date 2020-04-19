@@ -1,12 +1,19 @@
 # SnakePro
-download and install JRE for your System:
 
-	https://www.oracle.com/java/technologies/javase-jre8-downloads.html
-
-To run SnakePro on Linux, execute:
+Install SnakePro:
 	
-	SnakePro.sh
+	Download and install JRE for your System:
 
-To run SnakePro on Windows, execute:
+		https://www.oracle.com/java/technologies/javase-jre8-downloads.html
 
-	SnakePro.bat
+	Download and unpack SnakePro.zip
+
+
+
+	To run SnakePro on Linux, execute:
+
+		SnakePro.sh
+
+	To run SnakePro on Windows, execute:
+
+		SnakePro.bat
