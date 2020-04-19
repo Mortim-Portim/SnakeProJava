@@ -2,12 +2,14 @@
 Install Java on Linux:
 
 	check if java 1.8 is installed:
-	$java -version
+		$java -version
   
 	if not install java from the following file:
-	jre-8u251-linux-x64.tar.gz
+		jre-8u251-linux-x64.tar.gz
 
-To run SnakePro execute SnakePro.sh
+To run SnakePro execute
+	
+	SnakePro.sh
 
 
 Install Java on Windows:
@@ -16,4 +18,6 @@ Install Java on Windows:
   
 	Follow the Instructions
 
-To run SnakePro double click on SnakePro.bat
+To run SnakePro double click on
+
+	SnakePro.bat
