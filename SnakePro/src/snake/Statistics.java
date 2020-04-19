@@ -1,7 +1,5 @@
 package snake;
 
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -11,8 +9,6 @@ import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
-
-import org.newdawn.slick.Image;
 
 public class Statistics {
 	public static String StatFil = SnakePro.StatFil;
@@ -196,7 +192,7 @@ public class Statistics {
 			}
 		}
 		chart.setUndecorated(true);
-		chart.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		chart.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		chart.showChart();
 	}
 	

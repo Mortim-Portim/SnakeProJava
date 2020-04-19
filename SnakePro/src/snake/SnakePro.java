@@ -1,7 +1,6 @@
 package snake;
 
 import java.awt.Font;
-import java.awt.PopupMenu;
 import java.awt.Window;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,11 +11,8 @@ import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-
 import org.lwjgl.input.Controllers;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -29,7 +25,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.gui.TextField;
 
 public class SnakePro extends BasicGame{
 	public static int screenX = 1920;
