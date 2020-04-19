@@ -13,10 +13,11 @@ Install Java on Windows:
   
 	Follow the Instructions
 
-To run SnakePro double click on
 
-	SnakePro.bat
-
-To run SnakePro execute
+To run SnakePro on Linux, execute:
 	
 	SnakePro.sh
+
+To run SnakePro on Windows, execute:
+
+	SnakePro.bat
