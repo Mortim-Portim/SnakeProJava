@@ -1,0 +1,16 @@
+player = 3
+speed = 6
+startLenght = 10
+foodCount = 10
+growthRate = 3
+itemCount = 4
+spawnItemFrequency = 180
+speedLenght = 6
+LaserTime = 5
+LaserLenght = 10
+bombRadius = 5
+bombTime = 58
+bombDis = 9
+lastPlTime = 180
+botSpeed = 1.5
+ImageLocation = ImgEaster
