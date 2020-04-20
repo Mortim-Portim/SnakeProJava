@@ -71,7 +71,7 @@ public class Player extends Snake{
 		if(alive) {
 			if(Item != 1) {
 				SnakePro.soundsDie[SnakePro.random.nextInt(SnakePro.soundsDie.length)].play();
-				if(this != killer) {
+				if(this != killer && cause != Dead.Boss) {
 					killer.stats.addKill(cause);
 				}
 				this.stats.addDeath(cause);
@@ -98,7 +98,7 @@ public class Player extends Snake{
 		SnakePro.soundsRev[SnakePro.random.nextInt(SnakePro.soundsRev.length)].play();
 		pieces.clear();
 		for(int i=0; i<startLenght; i++) {
-			pieces.add(new Piece(-100,-100));
+			pieces.add(new Piece(startPos.xPos-100,startPos.yPos-100));
 		}
 		pieces.add(new Piece(Revs[Playernum-1][0], Revs[Playernum-1][1]));
 	}

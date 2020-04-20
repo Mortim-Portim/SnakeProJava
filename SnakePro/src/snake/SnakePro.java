@@ -5,6 +5,7 @@ import java.awt.Window;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -69,6 +70,7 @@ public class SnakePro extends BasicGame{
 	public static float FoodScale = 1.5f;
 	public static Color laserCol = new Color(0, 180, 0);
 	public static String BotFil = "/Kopf5.png";
+	public static String BossFil = "/Boss.png";
 	public static int BombCol = 180;
 	public static String Back1Fil = "/WinBack1.png";
 	public static String Back2Fil = "/WinBack2.png";
@@ -142,8 +144,10 @@ public class SnakePro extends BasicGame{
 	
 	public Color back = new Color(60, 60, 60);
 	public Color BotCol = new Color(0, 0, 0);
+	public Color bossCol = new Color(255, 255, 255);
 	public Font TextFont;
 	public TrueTypeFont TextTTFont;
+	public int bossAnimBlink = 10;
 	
 	public int player;
 	public int speed = 5;
@@ -160,12 +164,21 @@ public class SnakePro extends BasicGame{
 	public int bombTime = 60*4;
 	public int bombDis = 5;
 	public int lastPlTime = 60*3;
+	public int bossSpawnFrequency = 1000;
+	public int bossSpawnTime = 60;
+	public int bossLenght = 10;
+	public double bossSpeed = 1.5;
+	public int bossTime = 300;
+	
 	public List<Player> snakes = new ArrayList<Player>();
 	public List<ImgObject> food = new ArrayList<ImgObject>();
 	public List<Item> items = new ArrayList<Item>();
 	public List<Laser> lasers = new ArrayList<Laser>();
 	public List<Bot> bots = new ArrayList<Bot>();
 	public List<Bomb> bombs = new ArrayList<Bomb>();
+	public List<Boss> bosses = new ArrayList<Boss>();
+	public List<Piece> bossSpawns = new ArrayList<Piece>();
+	public List<Integer> bossSpawnTimer = new ArrayList<Integer>();
 	
 	public Input lastIn;
 	public int frameCounter = 0;
@@ -195,7 +208,12 @@ public class SnakePro extends BasicGame{
 		bombDis = 			Integer.parseInt(l.get(12));
 		lastPlTime =		Integer.parseInt(l.get(13));
 		botSpeed = 			Double.parseDouble(l.get(14));
-		ImageFil =          l.get(15);
+		bossSpawnFrequency =Integer.parseInt(l.get(15));
+		bossSpawnTime =     Integer.parseInt(l.get(16));
+		bossLenght =        Integer.parseInt(l.get(17));
+		bossSpeed =         Double.parseDouble(l.get(18));
+		bossTime = 			Integer.parseInt(l.get(19));
+		ImageFil =          l.get(20);
 	}
 	
 	public List<String> readFile(String filename, String Splitter) throws FileNotFoundException {
@@ -249,7 +267,6 @@ public class SnakePro extends BasicGame{
 		choosenNames = new String[player];
 		controller = new String[player];
 		for(int i=0; i<player; i++) {
-			boolean found = false;
 			String con;
 			if(i > 0 && i < gc.getInput().getControllerCount()+1) {
 				con = Controllers.getController(i-1).getName().replace(" ", "");
@@ -259,7 +276,6 @@ public class SnakePro extends BasicGame{
 			for(String[] s:Statistics.loadedFil) {
 				if(s[s.length-1].equals(con)) {
 					choosenNames[i] = s[0];
-					found = true;
 					break;
 				}else {
 					choosenNames[i] = Integer.toString(i+1);
@@ -339,10 +355,14 @@ public class SnakePro extends BasicGame{
 		lasers.clear();
 		bots.clear();
 		bombs.clear();
+		bosses.clear();
+		bossSpawns.clear();
+		bossSpawnTimer.clear();
 		frameCounter = 0;
 		lastPlCounter = 0;
 		playing = true;
 		displayHallOfFame = false;
+		snakes.get(0).Item = 4;
 	}
 	
 	@Override
@@ -402,6 +422,71 @@ public class SnakePro extends BasicGame{
 			}
 		}
 		if(playing) {
+			if(frameCounter%bossTime == 0 && frameCounter != 0) {
+				if(bosses.size() != 0) {
+					bosses.remove(bosses.size()-1);
+				}
+			}
+			if(frameCounter%bossSpawnFrequency == 0 && frameCounter != 0) {
+				bossSpawns.add(new Piece(random.nextInt(xPcs), random.nextInt(yPcs)));
+				bossSpawnTimer.add(bossSpawnTime);
+			}
+			for(int i=0; i<bossSpawnTimer.size(); i++) {
+				bossSpawnTimer.set(i, bossSpawnTimer.get(i)-1);
+			}
+			List<Integer> removeTimers = new ArrayList<Integer>();
+			for(int i=0; i<bossSpawnTimer.size(); i++) {
+				if(bossSpawnTimer.get(i) == 0) {
+					int xpos = bossSpawns.get(bossSpawns.size()-1).xPos;
+					int ypos = bossSpawns.get(bossSpawns.size()-1).yPos;
+					bosses.add(new Boss(new Image(ImageFil+BossFil), bossLenght, xpos, ypos));
+					bossSpawns.remove(i);
+					removeTimers.add(i);
+				}
+			}
+			for(Integer i : removeTimers) {
+				bossSpawnTimer.remove(removeTimers.get(i));
+			}
+			if(frameCounter%(int)(speed/bossSpeed) == 0) {
+				boolean[][] mat = new boolean[xPcs][yPcs];
+				for(int x=0; x<xPcs; x++) {
+					for(int y=0; y<yPcs; y++) {
+						mat[x][y] = true;
+					}
+				}
+				for(Player p:snakes) {
+					for(Piece pc:p.pieces) {
+						if(pc.inBorders(0, 0, xPcs, yPcs)) {
+							mat[pc.xPos][pc.yPos] = false;
+						}
+					}
+				}
+				Piece target = snakes.get(0).getHead();
+				for(Boss b : bosses) {
+					b.calcDir(mat, target);
+					b.update();
+				}
+				List<Player> setDeadPlayer = new ArrayList<Player>();
+				List<Boss> setDeadBosses = new ArrayList<Boss>();
+				for(Player p:snakes) {
+					if(p.alive) {
+						for(Boss b:bosses) {
+							if(p.getHead().inList(b.pieces) > 0 && !setDeadPlayer.contains(p)) {
+								setDeadPlayer.add(p);
+							}
+							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
+								setDeadBosses.add(b);
+							}
+						}
+					}
+				}
+				for(Player p : setDeadPlayer) {
+					p.setDead(frameCounter, Dead.Boss, null);
+				}
+				for(Boss b : setDeadBosses) {
+					bosses.remove(b);
+				}
+			}
 			if(frameCounter%speed == 0) {
 				if(lastIn.isKeyPressed(Input.KEY_SPACE)) {
 					itemUser.add(snakes.get(0));
@@ -510,6 +595,21 @@ public class SnakePro extends BasicGame{
 				items.add(newItem);
 			}
 			if(frameCounter%(int)(speed/botSpeed) == 0) {
+				boolean[][] mat = new boolean[xPcs][yPcs];
+				for(int x=0; x<xPcs; x++) {
+					for(int y=0; y<yPcs; y++) {
+						mat[x][y] = true;
+					}
+				}
+				for(Player p:snakes) {
+					if(p.alive) {
+						for(Piece pc:p.pieces) {
+							if(pc.inBorders(0, 0, xPcs, yPcs)) {
+								mat[pc.xPos][pc.yPos] = false;
+							}
+						}
+					}
+				}
 				for(Bot b:bots) {
 					b.calcDir(snakes);
 					b.update();
@@ -574,7 +674,7 @@ public class SnakePro extends BasicGame{
 					alivePl ++;
 				}
 			}
-			if(alivePl <= 1) {
+			if(alivePl <= 1 && bosses.size() == 0 || alivePl == 0) {
 				lastPlCounter ++;
 			}
 			if(lastPlCounter >= lastPlTime) {
@@ -602,6 +702,12 @@ public class SnakePro extends BasicGame{
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		if(playing) {
 			g.setBackground(back);
+			
+			for(Piece pc: bossSpawns) {
+				int c = 255-255*bossSpawnTimer.get(bossSpawns.indexOf(pc))/bossSpawnTime;
+				g.setColor(new Color(c,c,c));
+				g.fill(pc.getScaledRect(4.0f));
+			}
 			
 			for(Bomb b: bombs) {
 				int col = (int) (BombCol-BombCol*((double)(b.remainingTime)/(double)b.startTime));
@@ -657,6 +763,17 @@ public class SnakePro extends BasicGame{
 						int y = img.getPixelY()-pieceHeight*(Snake.headScale-1)/2;
 						g.drawImage(img.img, x, y);
 					}
+				}
+			}
+			for(Boss bs:bosses) {
+				g.setColor(bossCol);
+				for(Piece pcs:bs.getPieces()) {
+					g.fill(pcs.getPixlRect());
+				}
+				for(ImgObject img:bs.getImgs()) {
+					int x = img.getPixelX()-pieceWidth*(Snake.headScale-1)/2;
+					int y = img.getPixelY()-pieceHeight*(Snake.headScale-1)/2;
+					g.drawImage(img.img, x, y);
 				}
 			}
 		}else {
@@ -788,9 +905,25 @@ public class SnakePro extends BasicGame{
 					}
 				}
 			}
+			/**List<Boss> setDeadBosses = new ArrayList<Boss>();
+			for(Boss b:bosses) {
+				int hitPc = lasers.get(lasers.size()-1).hits(b);
+				if(hitPc >= 0) {
+					if(hitPc < b.pieces.size()-1) {
+						for(int i=0; i<hitPc; i++) {
+							b.pieces.remove(0);
+						}
+					}else {
+						setDeadBosses.add(b);
+					}
+				}
+			}
+			for(Boss b : setDeadBosses) {
+				bosses.remove(b);
+			}**/
 		}else if(itm == 4) {
 			SnakePro.soundsCln[SnakePro.random.nextInt(SnakePro.soundsCln.length)].play();
-			Bot b = new Bot(new Image(ImageFil+BotFil), snakes.indexOf(p), p, startLenght);
+			Bot b = new Bot(new Image(ImageFil+BotFil), snakes.indexOf(p), p, startLenght, snakes);
 			bots.add(b);
 		}else if(itm == 5) {
 			SnakePro.soundsTic[SnakePro.random.nextInt(SnakePro.soundsTic.length)].play();

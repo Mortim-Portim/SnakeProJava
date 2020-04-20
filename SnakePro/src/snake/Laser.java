@@ -47,6 +47,18 @@ public class Laser {
 		return hitpc;
 	}
 	
+	public int hits(Boss bs) {
+		int hitpc = -1;
+		for(Piece p : pieces) {
+			for(Piece p2 :bs.pieces) {
+				if(p.xPos == p2.xPos && p.yPos == p2.yPos && bs.pieces.indexOf(p2)>=hitpc) {
+					hitpc = bs.pieces.indexOf(p2);
+				}
+			}
+		}
+		return hitpc;
+	}
+	
 	public void draw(Graphics g) {
 		g.setColor(SnakePro.laserCol);
 		for(Piece p: pieces) {

@@ -1,21 +1,25 @@
 package snake;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+
+import pathfinding.Node;
+import pathfinding.PathFindingOnSquaredGrid;
 
 public class Bot extends Snake{
 	public static Direction[] dirs = {Direction.up, Direction.down, Direction.left, Direction.right};
 	
 	public int Owner;
 
-	public Bot(Image Head, int Owner, Player own, int startLenght) throws SlickException {
+	public Bot(Image Head, int Owner, Player own, int startLenght, List<Player> pls) throws SlickException {
 		super();
 		this.Owner = Owner;
 		startPos = own.getHead();
 		startDir = own.dir; dir = startDir;nextDir = dir;
-		startLenght = startLenght;
+		this.startLenght = startLenght;
 		originalHead = Head;
 		head = new ImgObject(originalHead, startPos.xPos, startPos.yPos);
 		head.rescale(pW*headScale, pH*headScale);

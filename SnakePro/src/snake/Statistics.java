@@ -1,3 +1,4 @@
+
 package snake;
 
 import java.io.FileInputStream;
@@ -28,6 +29,7 @@ public class Statistics {
 	public int stupidD;
 	public int playerD;
 	public int botD;
+	public int bossD;
 	
 	public int bombK;
 	public int laserK;
@@ -62,6 +64,10 @@ public class Statistics {
 			break;
 		case Bot:
 			botD ++;
+			break;
+		case Boss:
+			//TODO add BossDeaths to statistics
+			System.out.println("add BossDeaths to statistics");
 			break;
 		case Winner:
 			wins ++;
