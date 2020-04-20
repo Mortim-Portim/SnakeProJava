@@ -1,16 +1,16 @@
 package pathfinding;
 
-import java.awt.*;
 import java.util.*;
 
 import snake.Piece;
+import snake.SnakePro;
 
 /**
  * Created by Suwadith 2015214 on 3/28/2017.
  */
 
 
-public class PathFindingOnSquaredGrid {
+public class PathFinding{
 
     static Node[][] cell;
     static ArrayList<Node> pathList = new ArrayList<>();
@@ -373,5 +373,7 @@ public class PathFindingOnSquaredGrid {
     	System.out.println(matrixToString(getShortestPath(randomlyGenMatrix, symbols, A, B, 2)));
     	System.out.println("-----------------------------");
     	System.out.println(matrixToString(getShortestPath(randomlyGenMatrix, symbols, A, B, 3)));
+    	
+    	System.out.println(SnakePro.random.nextInt(2));
     }
 }

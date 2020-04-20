@@ -6,10 +6,12 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 import pathfinding.Node;
-import pathfinding.PathFindingOnSquaredGrid;
+import pathfinding.PathFinding;
 
 public class Boss extends Snake{
 	public static Direction[] dirs = {Direction.up, Direction.down, Direction.left, Direction.right};
+	public static int maxTries = 20;
+	public int pieceTry = 0;
 	
 	public Boss(Image Head, int startLenght, int x, int y) throws SlickException {
 		super();
@@ -34,9 +36,62 @@ public class Boss extends Snake{
 		}
 		pieces.add(startPos);
 	}
-
-	public void calcDir(boolean [][] mat, Piece target) {
+	
+	public Direction getDirToPc(Piece pc) {
+		Piece hd =getHead();
+		int xdis = hd.xPos-pc.xPos;
+		int ydis = hd.yPos-pc.yPos;
+		Direction next = dirs[SnakePro.random.nextInt(4)];
+		if(Math.abs(xdis) > Math.abs(ydis)) {
+			if(xdis > 0) {
+				next = Direction.left;
+			}else if(xdis < 0) {
+				next = Direction.right;
+			}
+		}else {
+			if(ydis > 0) {
+				next = Direction.up;
+			}else if(ydis < 0) {
+				next = Direction.down;
+			}
+		}
+		return next;
+	}
+	
+	public void goToPiece(Piece pc, boolean[][] mat, Piece target) {
+		if(pieceTry < maxTries && pc.inBorders(0, 0, SnakePro.xPcs, SnakePro.yPcs)) {
+			if(mat[pc.xPos][pc.yPos]) {
+				nextDir = getDirToPc(pc);
+			}else {
+				nextDir = calcDir(mat, target);
+			}
+		}
+	}
+	
+	public void calcDirFast(boolean [][] mat, Piece target) {
+		Piece hd = getHead();
+		int xdis = hd.xPos-target.xPos;
+		int ydis = hd.yPos-target.yPos;
 		nextDir = dirs[SnakePro.random.nextInt(4)];
+		pieceTry = 0;
+		if(Math.abs(xdis) > Math.abs(ydis)) {
+			if(xdis > 0) {
+				goToPiece(new Piece(hd.xPos-1, hd.yPos), mat, target);
+			}else if(xdis < 0) {
+				goToPiece(new Piece(hd.xPos+1, hd.yPos), mat, target);
+			}
+		}else {
+			if(ydis > 0) {
+				goToPiece(new Piece(hd.xPos, hd.yPos-1), mat, target);
+			}else if(ydis < 0) {
+				goToPiece(new Piece(hd.xPos, hd.yPos+1), mat, target);
+			}
+		}
+		changeDirection();
+	}
+
+	public Direction calcDir(boolean [][] mat, Piece target) {
+		Direction next = dirs[SnakePro.random.nextInt(4)];
 		if(target != null) {
 			Piece bhd = getHead();
 			Piece phd = target;
@@ -45,26 +100,26 @@ public class Boss extends Snake{
 	    	mat[Ai[0]][Ai[1]] = true;
 	    	mat[Bi[0]][Bi[1]] = true;
 	    	
-			ArrayList<Node> path = PathFindingOnSquaredGrid.getShortestNodes(mat, Ai, Bi, 3);
+			ArrayList<Node> path = PathFinding.getShortestNodes(mat, Ai, Bi, 3);
 	    	String[] symbols = {"  ", "||", "AA", "BB", "->"};
-			//System.out.println(PathFindingOnSquaredGrid.matrixToString(
-			//		PathFindingOnSquaredGrid.getShortestPath(mat, symbols, Ai, Bi, 3)));
+			//System.out.println(PathFinding.matrixToString(
+			//		PathFinding.getShortestPath(mat, symbols, Ai, Bi, 3)));
 			
 			if(path.size() > 1) {
 				int xdir = path.get(0).x-path.get(1).x;
 				int ydir = path.get(0).y-path.get(1).y;
 				if(xdir > 0) {
-					nextDir = Direction.left;
+					next = Direction.left;
 				}else if(xdir < 0) {
-					nextDir = Direction.right;
+					next = Direction.right;
 				}else if(ydir > 0) {
-					nextDir = Direction.up;
+					next = Direction.up;
 				}else if(ydir < 0) {
-					nextDir = Direction.down;
+					next = Direction.down;
 				}
 			}
 		}
-		changeDirection();
+		return next;
 	}
 	
 	@Override

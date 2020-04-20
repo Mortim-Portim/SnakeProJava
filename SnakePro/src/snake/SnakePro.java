@@ -362,7 +362,6 @@ public class SnakePro extends BasicGame{
 		lastPlCounter = 0;
 		playing = true;
 		displayHallOfFame = false;
-		snakes.get(0).Item = 4;
 	}
 	
 	@Override
@@ -447,46 +446,7 @@ public class SnakePro extends BasicGame{
 			for(Integer i : removeTimers) {
 				bossSpawnTimer.remove(removeTimers.get(i));
 			}
-			if(frameCounter%(int)(speed/bossSpeed) == 0) {
-				boolean[][] mat = new boolean[xPcs][yPcs];
-				for(int x=0; x<xPcs; x++) {
-					for(int y=0; y<yPcs; y++) {
-						mat[x][y] = true;
-					}
-				}
-				for(Player p:snakes) {
-					for(Piece pc:p.pieces) {
-						if(pc.inBorders(0, 0, xPcs, yPcs)) {
-							mat[pc.xPos][pc.yPos] = false;
-						}
-					}
-				}
-				Piece target = snakes.get(0).getHead();
-				for(Boss b : bosses) {
-					b.calcDir(mat, target);
-					b.update();
-				}
-				List<Player> setDeadPlayer = new ArrayList<Player>();
-				List<Boss> setDeadBosses = new ArrayList<Boss>();
-				for(Player p:snakes) {
-					if(p.alive) {
-						for(Boss b:bosses) {
-							if(p.getHead().inList(b.pieces) > 0 && !setDeadPlayer.contains(p)) {
-								setDeadPlayer.add(p);
-							}
-							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
-								setDeadBosses.add(b);
-							}
-						}
-					}
-				}
-				for(Player p : setDeadPlayer) {
-					p.setDead(frameCounter, Dead.Boss, null);
-				}
-				for(Boss b : setDeadBosses) {
-					bosses.remove(b);
-				}
-			}
+			
 			if(frameCounter%speed == 0) {
 				if(lastIn.isKeyPressed(Input.KEY_SPACE)) {
 					itemUser.add(snakes.get(0));
@@ -510,7 +470,6 @@ public class SnakePro extends BasicGame{
 					p.changeDirection();
 					p.update();
 				}
-				
 				int addFood = 0;
 				List<ImgObject> removeFoods = new ArrayList<ImgObject>();
 				for(ImgObject f:food) {
@@ -586,6 +545,59 @@ public class SnakePro extends BasicGame{
 					}
 				}
 			}
+			if(frameCounter%(int)(speed/bossSpeed) == 0) {
+				boolean[][] mat = new boolean[xPcs][yPcs];
+				for(int x=0; x<xPcs; x++) {
+					for(int y=0; y<yPcs; y++) {
+						mat[x][y] = true;
+					}
+				}
+				for(Player p:snakes) {
+					for(Piece pc:p.pieces) {
+						if(pc.inBorders(0, 0, xPcs, yPcs)) {
+							mat[pc.xPos][pc.yPos] = false;
+						}
+					}
+				}
+				List<Player> setDeadPlayer = new ArrayList<Player>();
+				List<Boss> setDeadBosses = new ArrayList<Boss>();
+				for(Player p:snakes) {
+					if(p.alive) {
+						for(Boss b:bosses) {
+							if(p.getHead().inList(b.pieces) > 0 && !setDeadPlayer.contains(p)) {
+								setDeadPlayer.add(p);
+							}
+							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
+								setDeadBosses.add(b);
+							}
+						}
+					}
+				}
+				for(Player p : setDeadPlayer) {
+					p.setDead(frameCounter, Dead.Boss, null);
+				}
+				for(Boss b : setDeadBosses) {
+					bosses.remove(b);
+				}
+				for(Boss b : bosses) {
+					int minDis = xPcs+yPcs;
+					Piece target = snakes.get(0).getHead();
+					for(Player p: snakes) {
+						if(p.alive) {
+							int dis = (int) p.getHead().getDis(b.getHead());
+							if(dis<minDis) {
+								minDis = dis;
+								target = p.getHead();
+							}
+						}
+					}
+					if(target != null) {
+						b.calcDirFast(mat, target);
+					}
+					b.update();
+				}
+			}
+			
 			if(frameCounter%spawnItemFrequency == 0) {
 				int type = random.nextInt(Items.size())+1;
 				Item newItem = new Item(Items.get(type-1), random.nextInt(xPcs), random.nextInt(yPcs), type);
