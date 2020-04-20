@@ -423,7 +423,7 @@ public class SnakePro extends BasicGame{
 		if(playing) {
 			if(frameCounter%bossTime == 0 && frameCounter != 0) {
 				if(bosses.size() != 0) {
-					bosses.remove(bosses.size()-1);
+					bosses.remove(0);
 				}
 			}
 			if(frameCounter%bossSpawnFrequency == 0 && frameCounter != 0) {
@@ -465,7 +465,28 @@ public class SnakePro extends BasicGame{
 						useItem(p.Item, p);
 					}
 				}
-				
+				List<Player> setDeadPlayer = new ArrayList<Player>();
+				List<Boss> setDeadBosses = new ArrayList<Boss>();
+				for(Player p:snakes) {
+					if(p.alive) {
+						for(Boss b:bosses) {
+							if(p.getHead().inList(b.pieces) > 0 && !setDeadPlayer.contains(p)) {
+								setDeadPlayer.add(p);
+							}
+							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
+								System.out.println(b.getHead().xPos+":"+b.getHead().yPos+" : "+
+										snakes.get(0).getHead().xPos + ":"+snakes.get(0).getHead().yPos);
+								setDeadBosses.add(b);
+							}
+						}
+					}
+				}
+				for(Player p : setDeadPlayer) {
+					p.setDead(frameCounter, Dead.Boss, null);
+				}
+				for(Boss b : setDeadBosses) {
+					bosses.remove(b);
+				}
 				for(Player p:snakes) {
 					p.changeDirection();
 					p.update();
@@ -558,26 +579,6 @@ public class SnakePro extends BasicGame{
 							mat[pc.xPos][pc.yPos] = false;
 						}
 					}
-				}
-				List<Player> setDeadPlayer = new ArrayList<Player>();
-				List<Boss> setDeadBosses = new ArrayList<Boss>();
-				for(Player p:snakes) {
-					if(p.alive) {
-						for(Boss b:bosses) {
-							if(p.getHead().inList(b.pieces) > 0 && !setDeadPlayer.contains(p)) {
-								setDeadPlayer.add(p);
-							}
-							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
-								setDeadBosses.add(b);
-							}
-						}
-					}
-				}
-				for(Player p : setDeadPlayer) {
-					p.setDead(frameCounter, Dead.Boss, null);
-				}
-				for(Boss b : setDeadBosses) {
-					bosses.remove(b);
 				}
 				for(Boss b : bosses) {
 					int minDis = xPcs+yPcs;
