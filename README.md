@@ -1,23 +1,24 @@
 # SnakePro
-Install Java on Linux:
 
-	check if java 1.8 is installed:
-		$java -version
-  
-	if not install java from the following file:
-		jre-8u251-linux-x64.tar.gz
+To install SnakePro follow these steps:
+	
+Download and install JRE for your System:
 
-Install Java on Windows:
+	https://www.oracle.com/java/technologies/javase-jre8-downloads.html
 
-	double click on "jre-8u251-windows-x64.exe"
-  
-	Follow the Instructions
+Download and unpack
+	
+	SnakePro.zip
 
 
 To run SnakePro on Linux, execute:
-	
+
 	SnakePro.sh
 
 To run SnakePro on Windows, execute:
 
 	SnakePro.bat
+![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro1.png)
+![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro2.png)
+![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro3.png)
+![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro4.png)
