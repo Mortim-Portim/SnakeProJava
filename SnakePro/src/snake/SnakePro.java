@@ -30,6 +30,7 @@ import org.newdawn.slick.geom.Rectangle;
 public class SnakePro extends BasicGame{
 	public static int screenX = 1920;
 	public static int screenY = 1080;
+	public static int frameRate = 60;
 	public static int xPcs = 64;
 	public static int yPcs = 36;
 	public static int pieceWidth = screenX/xPcs;
@@ -157,7 +158,7 @@ public class SnakePro extends BasicGame{
 	public int itemCount = 10;
 	public int spawnItemFrequency = 6*10;
 	public int speedLenght = 6;
-	public int LaserTime = 3;
+	public int LaserTime = 6;
 	public int LaserLenght = 10;
 	public double botSpeed = 1.1;
 	public int bombRadius = 2;
@@ -169,6 +170,8 @@ public class SnakePro extends BasicGame{
 	public int bossLenght = 10;
 	public double bossSpeed = 1.5;
 	public int bossTime = 300;
+	public boolean showFps = true;
+	public boolean setFullscreen = true;
 	
 	public List<Player> snakes = new ArrayList<Player>();
 	public List<ImgObject> food = new ArrayList<ImgObject>();
@@ -194,26 +197,28 @@ public class SnakePro extends BasicGame{
 		Statistics.loadStats();
 		List<String> l = readFile(ParaFil, "=");
 		this.player = 		Integer.parseInt(l.get(0));
-		speed = 	  		Integer.parseInt(l.get(1));
+		speed = 	  		20-Integer.parseInt(l.get(1));
 		startLenght = 		Integer.parseInt(l.get(2));
 		foodCount =   		Integer.parseInt(l.get(3));
 		growthRate =  		Integer.parseInt(l.get(4));
 		itemCount =   		Integer.parseInt(l.get(5));
-		spawnItemFrequency =Integer.parseInt(l.get(6));
+		spawnItemFrequency =(int) (Double.parseDouble(l.get(6))*frameRate);
 		speedLenght = 		Integer.parseInt(l.get(7));
-		LaserTime = 		Integer.parseInt(l.get(8));
+		LaserTime = 		(int) (Double.parseDouble(l.get(8))*frameRate);
 		LaserLenght = 		Integer.parseInt(l.get(9));
 		bombRadius = 		Integer.parseInt(l.get(10));
-		bombTime = 			Integer.parseInt(l.get(11));
+		bombTime = 			(int) (Double.parseDouble(l.get(11))*frameRate);
 		bombDis = 			Integer.parseInt(l.get(12));
-		lastPlTime =		Integer.parseInt(l.get(13));
+		lastPlTime =		(int) (Double.parseDouble(l.get(13))*frameRate);
 		botSpeed = 			Double.parseDouble(l.get(14));
-		bossSpawnFrequency =Integer.parseInt(l.get(15));
-		bossSpawnTime =     Integer.parseInt(l.get(16));
+		bossSpawnFrequency =(int) (Double.parseDouble(l.get(15))*frameRate);
+		bossSpawnTime =     (int) (Double.parseDouble(l.get(16))*frameRate);
 		bossLenght =        Integer.parseInt(l.get(17));
 		bossSpeed =         Double.parseDouble(l.get(18));
-		bossTime = 			Integer.parseInt(l.get(19));
+		bossTime = 			(int) (Double.parseDouble(l.get(19))*frameRate);
 		ImageFil =          l.get(20);
+		showFps = 			Boolean.parseBoolean(l.get(21));
+		setFullscreen = 	Boolean.parseBoolean(l.get(22));
 	}
 	
 	public List<String> readFile(String filename, String Splitter) throws FileNotFoundException {
@@ -286,13 +291,14 @@ public class SnakePro extends BasicGame{
 			pane.setInitialSelectionValue(choosenNames[i]);
 			JDialog dialog = pane.createDialog("SnakePro");
 			dialog.setVisible(true);
-			con = (String) pane.getInputValue();
+			String play = (String) pane.getInputValue();
+			choosenNames[i] = play;
 			controller[i] = con;
 		}
 		Window[] w = Window.getWindows();
 		gc.setFullscreen(false);
 		w[0].toFront();
-		gc.setFullscreen(true);
+		gc.setFullscreen(setFullscreen);
 	}
 	
 	@Override
@@ -320,6 +326,8 @@ public class SnakePro extends BasicGame{
 		TextFont = new Font("Verdana", Font.BOLD, (int) (screenX*(35.0/1920.0)));
 		TextTTFont= new TrueTypeFont(TextFont, false);
 		frameCounter = 0;
+		gc.setShowFPS(showFps);
+		gc.setFullscreen(setFullscreen);
 		initSounds(gc);
 		initNames(gc);
 		reset(gc);
@@ -421,10 +429,14 @@ public class SnakePro extends BasicGame{
 			}
 		}
 		if(playing) {
-			if(frameCounter%bossTime == 0 && frameCounter != 0) {
-				if(bosses.size() != 0) {
-					bosses.remove(0);
+			List<Boss> removeBoss = new ArrayList<Boss>();
+			for(Boss b : bosses) {
+				if(b.time <= 0) {
+					removeBoss.add(b);
 				}
+			}
+			for(Boss b:removeBoss) {
+				bosses.remove(b);
 			}
 			if(frameCounter%bossSpawnFrequency == 0 && frameCounter != 0) {
 				bossSpawns.add(new Piece(random.nextInt(xPcs), random.nextInt(yPcs)));
@@ -438,7 +450,7 @@ public class SnakePro extends BasicGame{
 				if(bossSpawnTimer.get(i) == 0) {
 					int xpos = bossSpawns.get(bossSpawns.size()-1).xPos;
 					int ypos = bossSpawns.get(bossSpawns.size()-1).yPos;
-					bosses.add(new Boss(new Image(ImageFil+BossFil), bossLenght, xpos, ypos));
+					bosses.add(new Boss(new Image(ImageFil+BossFil), bossLenght, xpos, ypos, bossTime));
 					bossSpawns.remove(i);
 					removeTimers.add(i);
 				}
@@ -474,18 +486,22 @@ public class SnakePro extends BasicGame{
 								setDeadPlayer.add(p);
 							}
 							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
-								System.out.println(b.getHead().xPos+":"+b.getHead().yPos+" : "+
-										snakes.get(0).getHead().xPos + ":"+snakes.get(0).getHead().yPos);
-								setDeadBosses.add(b);
+								//setDeadBosses.add(b);
+								p.stats.addKill(Dead.Boss);
 							}
 						}
 					}
 				}
-				for(Player p : setDeadPlayer) {
-					p.setDead(frameCounter, Dead.Boss, null);
+				for(Boss b : bosses) {
+					if(!b.getHead().inBorders(0, 0, xPcs-1, yPcs-1) && !setDeadBosses.contains(b)) {
+						setDeadBosses.add(b);
+					}
 				}
 				for(Boss b : setDeadBosses) {
 					bosses.remove(b);
+				}
+				for(Player p : setDeadPlayer) {
+					p.setDead(frameCounter, Dead.Boss, null);
 				}
 				for(Player p:snakes) {
 					p.changeDirection();
@@ -593,12 +609,14 @@ public class SnakePro extends BasicGame{
 						}
 					}
 					if(target != null) {
-						b.calcDirFast(mat, target);
+						b.calcDirSlow(mat, target);
 					}
 					b.update();
 				}
 			}
-			
+			for(Boss b : bosses) {
+				b.time --;
+			}
 			if(frameCounter%spawnItemFrequency == 0) {
 				int type = random.nextInt(Items.size())+1;
 				Item newItem = new Item(Items.get(type-1), random.nextInt(xPcs), random.nextInt(yPcs), type);
@@ -659,12 +677,10 @@ public class SnakePro extends BasicGame{
 				} 
 			}
 			List<Laser> removeLaser = new ArrayList<Laser>();
-			if(frameCounter%LaserTime == 0) {
-				for(Laser l : lasers) {
-					l.remainingTime --;
-					if(l.remainingTime <= 0) {
-						removeLaser.add(l);
-					}
+			for(Laser l : lasers) {
+				l.remainingTime --;
+				if(l.remainingTime <= 0) {
+					removeLaser.add(l);
 				}
 			}
 			for(Laser l : removeLaser) {
@@ -903,7 +919,7 @@ public class SnakePro extends BasicGame{
 		}else if(itm == 3) {
 			SnakePro.soundsSht[SnakePro.random.nextInt(SnakePro.soundsSht.length)].play();
 			Piece hd = p.getHead();
-			lasers.add(new Laser(hd, LaserLenght, p.dir));
+			lasers.add(new Laser(hd, LaserLenght, p.dir, LaserTime));
 			for(Player p2:snakes) {
 				if(p2.alive) {
 					int hitPc = lasers.get(lasers.size()-1).hits(p2);
@@ -967,10 +983,9 @@ public class SnakePro extends BasicGame{
 		SnakePro snkProGm = new SnakePro("settings.txt");
 		AppGameContainer SnakeProGame1 = new AppGameContainer(snkProGm);
 		SnakeProGame1.setDisplayMode(screenX, screenY, true);
-		SnakeProGame1.setFullscreen(true);
-		SnakeProGame1.setTargetFrameRate(60);
+		//SnakeProGame1.setFullscreen(true);
+		SnakeProGame1.setTargetFrameRate(frameRate);
 		SnakeProGame1.setVSync(false);
-		SnakeProGame1.setShowFPS(false);
 		SnakeProGame1.start();
 		
 	}

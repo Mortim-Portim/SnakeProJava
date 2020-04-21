@@ -12,9 +12,11 @@ public class Boss extends Snake{
 	public static Direction[] dirs = {Direction.up, Direction.down, Direction.left, Direction.right};
 	public static int maxTries = 20;
 	public int pieceTry = 0;
+	public int time;
 	
-	public Boss(Image Head, int startLenght, int x, int y) throws SlickException {
+	public Boss(Image Head, int startLenght, int x, int y, int BossTime) throws SlickException {
 		super();
+		time = BossTime;
 		startPos = new Piece(x, y);
 		startDir = dirs[SnakePro.random.nextInt(4)];
 		this.startLenght = startLenght;
@@ -35,6 +37,11 @@ public class Boss extends Snake{
 			pieces.add(new Piece(startPos.xPos-200, startPos.yPos-200));
 		}
 		pieces.add(startPos);
+	}
+	
+	@Override
+	public void update() {
+		super.update();
 	}
 	
 	public Direction getDirToPc(Piece pc) {
@@ -87,6 +94,11 @@ public class Boss extends Snake{
 				goToPiece(new Piece(hd.xPos, hd.yPos+1), mat, target);
 			}
 		}
+		changeDirection();
+	}
+	
+	public void calcDirSlow(boolean [][] mat, Piece target) {
+		nextDir = calcDir(mat, target);
 		changeDirection();
 	}
 

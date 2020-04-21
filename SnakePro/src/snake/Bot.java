@@ -20,9 +20,10 @@ public class Bot extends Snake{
 		head = new ImgObject(originalHead, startPos.xPos, startPos.yPos);
 		head.rescale(pW*headScale, pH*headScale);
 		pieces.clear();
-		for(int i=startLenght; i>0; i--) {
-			pieces.add(own.pieces.get(own.pieces.size()-i));
+		for(int i=1; i<startLenght; i++) {
+			pieces.add(new Piece(startPos.xPos-300, startPos.yPos-300));
 		}
+		pieces.add(startPos);
 	}
 	
 	public void calcDir(List<Player> pls) {

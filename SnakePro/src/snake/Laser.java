@@ -14,8 +14,8 @@ public class Laser {
 	public int remainingTime;
 	private int startingTime;
 
-	public Laser(Piece start, int time, Direction dir) {
-		for(int i=0; i<time; i++) {
+	public Laser(Piece start, int lenght, Direction dir, int t) {
+		for(int i=0; i<lenght; i++) {
 			switch (dir) {
 			case up:
 				pieces.add(new Piece(start.xPos, start.yPos-i-2));
@@ -31,8 +31,8 @@ public class Laser {
 				break;
 			}
 		}
-		this.remainingTime = time;
-		this.startingTime = time;
+		this.remainingTime = t;
+		this.startingTime = t;
 	}
 	
 	public int hits(Player pl) {

@@ -57,6 +57,11 @@ public class Player extends Snake{
 			break;
 		}
 		reset();
+		pieces.clear();
+		for(int i=0; i<startLenght; i++) {
+			pieces.add(new Piece(-170+startPos.xPos, -170+startPos.yPos));
+		}
+		pieces.add(startPos.copy());
 	}
 	
 	@Override

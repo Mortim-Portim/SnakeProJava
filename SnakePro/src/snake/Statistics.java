@@ -35,6 +35,7 @@ public class Statistics {
 	public int laserK;
 	public int skillK; //player ohne alles gekillt
 	public int botK;
+	public int bossK;
 	
 	public String controllerName;
 		
@@ -66,8 +67,7 @@ public class Statistics {
 			botD ++;
 			break;
 		case Boss:
-			//TODO add BossDeaths to statistics
-			System.out.println("add BossDeaths to statistics");
+			bossD ++;
 			break;
 		case Winner:
 			wins ++;
@@ -92,6 +92,9 @@ public class Statistics {
 		case Bot:
 			botK ++;
 			break;
+		case Boss:
+			bossK ++;
+			break;
 		}
 		kills ++;
 	}
@@ -109,11 +112,13 @@ public class Statistics {
 				this.stupidD = Integer.parseInt(loadedFil.get(i)[7]);
 				this.playerD = Integer.parseInt(loadedFil.get(i)[8]);
 				this.botD = Integer.parseInt(loadedFil.get(i)[9]);
+				this.bossD = Integer.parseInt(loadedFil.get(i)[10]);
 				
-				this.bombK = Integer.parseInt(loadedFil.get(i)[10]);
-				this.laserK = Integer.parseInt(loadedFil.get(i)[11]);
-				this.skillK = Integer.parseInt(loadedFil.get(i)[12]);
-				this.botK = Integer.parseInt(loadedFil.get(i)[13]);
+				this.bombK = Integer.parseInt(loadedFil.get(i)[11]);
+				this.laserK = Integer.parseInt(loadedFil.get(i)[12]);
+				this.skillK = Integer.parseInt(loadedFil.get(i)[13]);
+				this.botK = Integer.parseInt(loadedFil.get(i)[14]);
+				this.bossK = Integer.parseInt(loadedFil.get(i)[15]);
 				break;
 			}
 		}
@@ -138,10 +143,12 @@ public class Statistics {
 				Integer.toString(stupidD),
 				Integer.toString(playerD),
 				Integer.toString(botD),
+				Integer.toString(bossD),
 				Integer.toString(bombK),
 				Integer.toString(laserK),
 				Integer.toString(skillK),
 				Integer.toString(botK),
+				Integer.toString(bossK),
 				controllerName
 				};
 		if(indx != -1) {
