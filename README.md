@@ -22,6 +22,11 @@ To run SnakePro on Windows, execute:
 To change Settings open:
 	
 	Parameter.txt
+
+To reset statistics open:
+	
+	stats/Statistics.txt
+
 ![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro1.png)
 ![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro2.png)
 ![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro3.png)
