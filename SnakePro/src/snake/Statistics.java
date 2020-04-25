@@ -1,10 +1,6 @@
 
 package snake;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -12,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.WindowConstants;
-
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 
 public class Statistics {

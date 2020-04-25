@@ -1,11 +1,7 @@
 package snake;
 
-import java.awt.AWTException;
 import java.awt.Font;
-import java.awt.Robot;
-import java.awt.Window;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -21,11 +17,9 @@ import java.util.Random;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.lwjgl.input.Controllers;
 import org.newdawn.slick.AppGameContainer;
