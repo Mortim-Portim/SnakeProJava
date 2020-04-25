@@ -2,6 +2,8 @@ package test;
 
 import java.util.ArrayList;
 
+import org.lwjgl.input.Controller;
+import org.lwjgl.input.Controllers;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -45,6 +47,7 @@ public class InputTest extends BasicGame {
 	/** True if right shift is down */
 	private boolean rshift;
 	
+	private Controller Wiimote;
 	/**
 	 * Create a new input test
 	 */
@@ -62,6 +65,13 @@ public class InputTest extends BasicGame {
 		}
 		
 		input = container.getInput();
+		System.out.println(Controllers.getControllerCount());
+		for(int i=0; i<Controllers.getControllerCount(); i++) {
+			System.out.println(i+": "+Controllers.getController(i).getAxisCount());
+		}
+		
+		System.out.println();
+		//System.out.println(input.);
 		x = 300;
 		y = 300;
 	}
@@ -96,10 +106,13 @@ public class InputTest extends BasicGame {
 	 */
 	@Override
 	public void update(GameContainer container, int delta) {
+		//System.out.println(Controllers.getController(0).getName());
         lshift = container.getInput().isKeyDown(Input.KEY_LSHIFT);
         rshift = container.getInput().isKeyDown(Input.KEY_RSHIFT);
         space = container.getInput().isKeyDown(Input.KEY_SPACE); 
         
+        //System.out.println(container.getInput().isKeyDown(200));
+        input = container.getInput();
 		if (controllerLeft[0]) {
 			x -= delta * 0.1f;
 		}
@@ -119,6 +132,10 @@ public class InputTest extends BasicGame {
 	 */
 	@Override
 	public void keyPressed(int key, char c) {
+		System.out.println(key);
+		//System.out.println(key);
+		
+		
 		if (key == Input.KEY_ESCAPE) {
 			System.exit(0);
 		}
@@ -257,6 +274,7 @@ public class InputTest extends BasicGame {
 		try {
 			AppGameContainer container = new AppGameContainer(new InputTest());
 			container.setDisplayMode(800,600,false);
+			container.setTargetFrameRate(10);
 			System.out.println("---------------------------");
 			container.start();
 		} catch (SlickException e) {

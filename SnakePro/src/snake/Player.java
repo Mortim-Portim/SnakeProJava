@@ -74,11 +74,11 @@ public class Player extends Snake{
 	
 	public void setDead(int score, Dead cause, Player killer) {
 		if(alive) {
+			if(this != killer && cause != Dead.Boss) {
+				killer.stats.addKill(cause);
+			}
 			if(Item != 1) {
 				SnakePro.soundsDie[SnakePro.random.nextInt(SnakePro.soundsDie.length)].play();
-				if(this != killer && cause != Dead.Boss) {
-					killer.stats.addKill(cause);
-				}
 				this.stats.addDeath(cause);
 				this.alive = false;
 				super.setDead();

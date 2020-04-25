@@ -26,6 +26,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.gui.TextField;
 
 public class SnakePro extends BasicGame{
 	public static int screenX = 1920;
@@ -66,6 +67,7 @@ public class SnakePro extends BasicGame{
 	public static int[] Itm4 = {(int) (screenX-pieceWidth*PlayerItemsScale*ItemScale),(int) (screenY-pieceHeight*PlayerItemsScale*ItemScale)};
 	public static int[][] Itms = {Itm1, Itm2, Itm3, Itm4};
 	
+	public static int[] nameChoosePos = {(int) (screenX*(280.0/1920.0)),(int) (screenY*(250.0/1080.0))};
 	public static String FoodFil = "/Food.png";
 	public static Image foodImg;
 	public static float FoodScale = 1.5f;
@@ -142,7 +144,7 @@ public class SnakePro extends BasicGame{
 	public static Sound[] soundsTic = new Sound[Ticking.length];
 	
 	public static Random random = new Random();
-	
+		
 	public Color back = new Color(60, 60, 60);
 	public Color BotCol = new Color(0, 0, 0);
 	public Color bossCol = new Color(255, 255, 255);
@@ -182,6 +184,7 @@ public class SnakePro extends BasicGame{
 	public List<Boss> bosses = new ArrayList<Boss>();
 	public List<Piece> bossSpawns = new ArrayList<Piece>();
 	public List<Integer> bossSpawnTimer = new ArrayList<Integer>();
+	public int drawConName = -1;
 	
 	public Input lastIn;
 	public int frameCounter = 0;
@@ -190,6 +193,7 @@ public class SnakePro extends BasicGame{
 	public String[] choosenNames;
 	public String[] controller;
 	public List<Integer> scores = new ArrayList<Integer>();
+	public List<TextField> nameFields = new ArrayList<TextField>();
 	public boolean displayHallOfFame;
 
 	public SnakePro(String Settings) throws SlickException, FileNotFoundException {
@@ -273,10 +277,13 @@ public class SnakePro extends BasicGame{
 		controller = new String[player];
 		for(int i=0; i<player; i++) {
 			String con;
-			if(i > 0 && i < gc.getInput().getControllerCount()+1) {
+			if(i > 0 && i < gc.getInput().getControllerCount()+1 && Controllers.getController(i-1).getAxisCount()>2) {
 				con = Controllers.getController(i-1).getName().replace(" ", "");
 			}else {
 				con = "keyboard";
+			}
+			if(Arrays.asList(controller).contains(con)) {
+				con += Integer.toString(i+1);
 			}
 			for(String[] s:Statistics.loadedFil) {
 				if(s[s.length-1].equals(con)) {
@@ -286,19 +293,19 @@ public class SnakePro extends BasicGame{
 					choosenNames[i] = Integer.toString(i+1);
 				}
 			}
-			JOptionPane pane = new JOptionPane("Who is using "+con+" ?");
+			/**JOptionPane pane = new JOptionPane("Who is using "+con+" ?");
 			pane.setWantsInput(true);
 			pane.setInitialSelectionValue(choosenNames[i]);
 			JDialog dialog = pane.createDialog("SnakePro");
 			dialog.setVisible(true);
 			String play = (String) pane.getInputValue();
-			choosenNames[i] = play;
+			choosenNames[i] = play;**/
 			controller[i] = con;
 		}
-		Window[] w = Window.getWindows();
+		/**Window[] w = Window.getWindows();
 		gc.setFullscreen(false);
 		w[0].toFront();
-		gc.setFullscreen(setFullscreen);
+		gc.setFullscreen(setFullscreen);**/
 	}
 	
 	@Override
@@ -321,16 +328,15 @@ public class SnakePro extends BasicGame{
 			Pokale[i] = new Image(ImageFil+pokaleFil[i]).getScaledCopy(scl,scl);
 		}
 		
-		gc.setMouseGrabbed(true);
 		gc.setIcon(ImageFil+iconFile);
 		TextFont = new Font("Verdana", Font.BOLD, (int) (screenX*(35.0/1920.0)));
 		TextTTFont= new TrueTypeFont(TextFont, false);
-		frameCounter = 0;
 		gc.setShowFPS(showFps);
 		gc.setFullscreen(setFullscreen);
 		initSounds(gc);
 		initNames(gc);
 		reset(gc);
+		playing = false;
 	}
 	
 	@Override
@@ -360,6 +366,15 @@ public class SnakePro extends BasicGame{
 			int type = random.nextInt(Items.size())+1;
 			items.add(new Item(Items.get(type-1), random.nextInt(xPcs), random.nextInt(yPcs), type));
 		}
+		nameFields.clear();
+		for(int i=0; i<choosenNames.length; i++) {
+			int scale = (int) (screenY*(50.0/1080.0));
+			TextField tf = new TextField(gc, TextTTFont, nameChoosePos[0], nameChoosePos[1]+i*scale, scale*5, scale);
+			tf.setText(choosenNames[i]);
+			tf.setBackgroundColor(null);
+			//tf.setBorderColor(null);
+			nameFields.add(tf);
+		}
 		lasers.clear();
 		bots.clear();
 		bombs.clear();
@@ -376,7 +391,6 @@ public class SnakePro extends BasicGame{
 	public void update(GameContainer gc, int delta) throws SlickException {
 		if(gc.hasFocus()) {
 		lastIn = gc.getInput();
-		List<Player> itemUser = new ArrayList<Player>();
 		if(lastIn.isKeyDown(Input.KEY_UP)) {
 			snakes.get(0).nextDir = Direction.up;
 		}else if(lastIn.isKeyDown(Input.KEY_DOWN)) {
@@ -389,9 +403,12 @@ public class SnakePro extends BasicGame{
 		if(lastIn.isKeyPressed(Input.KEY_TAB) && !playing) {
 			displayHallOfFame = !displayHallOfFame;
 		}
-		if(lastIn.isKeyPressed(Input.KEY_ADD) && !playing) {
+		if(lastIn.isKeyPressed(Input.KEY_RETURN) && !playing) {
 			if(Statistics.isShowingStats()) {
 				Statistics.chart.dispose();
+			}
+			for(Player p: snakes) {
+				p.stats.writeStats();
 			}
 			Statistics.showStats();
 		}
@@ -429,6 +446,25 @@ public class SnakePro extends BasicGame{
 			}
 		}
 		if(playing) {
+			gc.setMouseGrabbed(true);
+			List<Player> itemUser = new ArrayList<Player>();
+			if(lastIn.isKeyPressed(Input.KEY_SPACE)) {
+				itemUser.add(snakes.get(0));
+			}
+			if(lastIn.isButton1Pressed(0) || lastIn.isButton2Pressed(0) || lastIn.isButton3Pressed(0)) {
+				itemUser.add(snakes.get(1));
+			}
+			if(lastIn.isButton1Pressed(1) || lastIn.isButton2Pressed(1) || lastIn.isButton3Pressed(1)) {
+				itemUser.add(snakes.get(2));
+			}
+			if(lastIn.isButton1Pressed(2) || lastIn.isButton2Pressed(2) || lastIn.isButton3Pressed(2)) {
+				itemUser.add(snakes.get(3));
+			}
+			for(Player p:itemUser) {
+				if(p.alive) {
+					useItem(p.Item, p);
+				}
+			}
 			List<Boss> removeBoss = new ArrayList<Boss>();
 			for(Boss b : bosses) {
 				if(b.time <= 0) {
@@ -460,23 +496,6 @@ public class SnakePro extends BasicGame{
 			}
 			
 			if(frameCounter%speed == 0) {
-				if(lastIn.isKeyPressed(Input.KEY_SPACE)) {
-					itemUser.add(snakes.get(0));
-				}
-				if(lastIn.isButton1Pressed(0) || lastIn.isButton2Pressed(0) || lastIn.isButton3Pressed(0)) {
-					itemUser.add(snakes.get(1));
-				}
-				if(lastIn.isButton1Pressed(1) || lastIn.isButton2Pressed(1) || lastIn.isButton3Pressed(1)) {
-					itemUser.add(snakes.get(2));
-				}
-				if(lastIn.isButton1Pressed(2) || lastIn.isButton2Pressed(2) || lastIn.isButton3Pressed(2)) {
-					itemUser.add(snakes.get(3));
-				}
-				for(Player p:itemUser) {
-					if(p.alive) {
-						useItem(p.Item, p);
-					}
-				}
 				List<Player> setDeadPlayer = new ArrayList<Player>();
 				List<Boss> setDeadBosses = new ArrayList<Boss>();
 				for(Player p:snakes) {
@@ -596,20 +615,32 @@ public class SnakePro extends BasicGame{
 						}
 					}
 				}
+				List<Direction> deadDirs = new ArrayList<Direction>();
+				for(Player p : snakes) {
+					if(!p.alive) {
+						deadDirs.add(p.nextDir);
+					}
+				}
 				for(Boss b : bosses) {
-					int minDis = xPcs+yPcs;
-					Piece target = snakes.get(0).getHead();
-					for(Player p: snakes) {
-						if(p.alive) {
-							int dis = (int) p.getHead().getDis(b.getHead());
-							if(dis<minDis) {
-								minDis = dis;
-								target = p.getHead();
+					if(deadDirs.size() == 0) {
+						int minDis = xPcs+yPcs;
+						Piece target = snakes.get(0).getHead();
+						for(Player p: snakes) {
+							if(p.alive) {
+								int dis = (int) p.getHead().getDis(b.getHead());
+								if(dis<minDis) {
+									minDis = dis;
+									target = p.getHead();
+								}
 							}
 						}
-					}
-					if(target != null) {
-						b.calcDirSlow(mat, target);
+						if(target != null) {
+							b.calcDirSlow(mat, target);
+						}
+					}else {
+						b.nextDir = deadDirs.get(0);
+						b.changeDirection();
+						deadDirs.remove(0);
 					}
 					b.update();
 				}
@@ -703,7 +734,7 @@ public class SnakePro extends BasicGame{
 					alivePl ++;
 				}
 			}
-			if(alivePl <= 1 && bosses.size() == 0 || alivePl == 0) {
+			if(alivePl <= 1) {
 				lastPlCounter ++;
 			}
 			if(lastPlCounter >= lastPlTime) {
@@ -717,9 +748,23 @@ public class SnakePro extends BasicGame{
 				}
 				playing = false;
 				lastPlCounter = 0;
+				for(TextField tf : nameFields) {
+					tf.inputStarted();
+				}
 			}
 			frameCounter ++;
 		}else {
+			gc.setMouseGrabbed(false);
+			drawConName = -1;
+			for(TextField tf : nameFields) {
+				choosenNames[nameFields.indexOf(tf)] = tf.getText();
+				int x = lastIn.getMouseX();
+				int y = lastIn.getMouseY();
+				if(x>tf.getX() && x<tf.getX()+tf.getWidth()
+				&& y>tf.getY() && y<tf.getY()+tf.getHeight()) {
+					drawConName = nameFields.indexOf(tf);
+				}
+			}
 			if(lastIn.isKeyDown(Input.KEY_SPACE)) {
 				reset(gc);
 			}
@@ -808,20 +853,30 @@ public class SnakePro extends BasicGame{
 		}else {
 			if(!displayHallOfFame) {
 				g.drawImage(Back1,0,0);
-				
-				Image winImg = new Image(ImageFil+HeadSvg.get(scores.indexOf(Collections.max(scores)))).getScaledCopy((int) (screenX*(400.0/1920.0)), (int) (screenY*(400.0/1080.0)));
-				
-				winImg.rotate(90);
-				g.drawImage(winImg,(int)(screenX*(1168.0/1920.0)),(int)(screenY*(118.0/1080.0)));
 				g.drawImage(Back2, 0, 0);
-				for(int i=0; i<snakes.size(); i++) {
-					Player p = snakes.get(i);
-					TextTTFont.drawString((int)(screenX*(285.0/1920.0)),(int) (screenY*(250.0/1080.0)+i*screenX*(50.0/1920.0)),
-							p.stats.name+": "+p.score, p.color);
+				for(TextField tf:nameFields) {
+					g.setColor(snakes.get(nameFields.indexOf(tf)).color);
+					tf.render(gc, g);
 				}
-				
-				for(Player p: snakes) {
-					p.stats.writeStats();
+				if(scores.size() == player) {
+					Image winImg = new Image(ImageFil+HeadSvg.get(scores.indexOf(Collections.max(scores)))).getScaledCopy((int) (screenX*(400.0/1920.0)), (int) (screenY*(400.0/1080.0)));
+					
+					winImg.rotate(90);
+					g.drawImage(winImg,(int)(screenX*(1168.0/1920.0)),(int)(screenY*(118.0/1080.0)));
+					g.drawImage(Back2, 0, 0);
+					for(int i=0; i<snakes.size(); i++) {
+						Player p = snakes.get(i);
+						TextTTFont.drawString(
+								(int)(screenX*(550.0/1920.0)),
+								(int) (screenY*(250.0/1080.0)+i*screenX*(50.0/1920.0)),
+								": "+p.score, p.color);
+					}
+				}
+				if(drawConName >= 0) {
+					TextTTFont.drawString(
+							lastIn.getMouseX(),
+							lastIn.getMouseY(),
+							controller[drawConName]);
 				}
 			}else {
 				g.drawImage(HallOfFame,0,0);
@@ -862,7 +917,6 @@ public class SnakePro extends BasicGame{
 					TextTTFont.drawString(PklXDis+(PklScale+PklSpac)*(i-4)+PklScale, PklYDis2, Integer.toString(Collections.max(l.get(i))), new Color(0,0,0));
 					g.drawImage(Pokale[i], PklXDis+(PklScale+PklSpac)*(i-4), PklYDis2);
 				}
-				
 			}
 		}
 	}

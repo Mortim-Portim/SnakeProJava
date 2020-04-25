@@ -1,6 +1,7 @@
 
 package snake;
 
+import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -193,9 +194,8 @@ public class Statistics {
 	public static BarChart chart;
 	
 	public static void showStats() {
-		//loadStats();
+		
 		chart = new BarChart("Player Stats", "Player Stats");
-		//addValue(Value, Player, Stats)
 		for(int i=1; i<loadedFil.size(); i++) {
 			for(int a=1; a<loadedFil.get(i).length-1; a++) {
 				int value = Integer.parseInt(loadedFil.get(i)[a]);
@@ -208,7 +208,7 @@ public class Statistics {
 		chart.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		chart.showChart();
 	}
-	
+		
 	public static boolean isShowingStats() {
 		if(chart != null) {
 			return true;
