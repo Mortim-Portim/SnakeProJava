@@ -1,7 +1,10 @@
 
 package snake;
 
-import java.awt.Font;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -9,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.JFrame;
 import javax.swing.WindowConstants;
+
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
 
 public class Statistics {
 	public static String StatFil = SnakePro.StatFil;
@@ -193,8 +198,7 @@ public class Statistics {
 	
 	public static BarChart chart;
 	
-	public static void showStats() {
-		
+	public static JFreeChart showStats() {
 		chart = new BarChart("Player Stats", "Player Stats");
 		for(int i=1; i<loadedFil.size(); i++) {
 			for(int a=1; a<loadedFil.get(i).length-1; a++) {
@@ -204,9 +208,7 @@ public class Statistics {
 				chart.dataset.addValue(value , player , stat);
 			}
 		}
-		chart.setUndecorated(true);
-		chart.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		chart.showChart();
+		return chart.createChart();
 	}
 		
 	public static boolean isShowingStats() {

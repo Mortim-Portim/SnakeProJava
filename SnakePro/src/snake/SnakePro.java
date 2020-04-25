@@ -1,9 +1,18 @@
 package snake;
 
+import java.awt.AWTException;
 import java.awt.Font;
+import java.awt.Robot;
 import java.awt.Window;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,9 +20,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
 import org.lwjgl.input.Controllers;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -27,6 +40,7 @@ import org.newdawn.slick.Sound;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.gui.TextField;
+import org.newdawn.slick.util.BufferedImageUtil;
 
 public class SnakePro extends BasicGame{
 	public static int screenX = 1920;
@@ -68,6 +82,8 @@ public class SnakePro extends BasicGame{
 	public static int[][] Itms = {Itm1, Itm2, Itm3, Itm4};
 	
 	public static int[] nameChoosePos = {(int) (screenX*(280.0/1920.0)),(int) (screenY*(250.0/1080.0))};
+	public static int[] winImgPos = {(int)(screenX*(1168.0/1920.0)),(int)(screenY*(118.0/1080.0))};
+	public static int[] winImgScale = {(int) (screenX*(400.0/1920.0)), (int) (screenY*(400.0/1080.0))};
 	public static String FoodFil = "/Food.png";
 	public static Image foodImg;
 	public static float FoodScale = 1.5f;
@@ -75,9 +91,9 @@ public class SnakePro extends BasicGame{
 	public static String BotFil = "/Kopf5.png";
 	public static String BossFil = "/Boss.png";
 	public static int BombCol = 180;
-	public static String Back1Fil = "/WinBack1.png";
-	public static String Back2Fil = "/WinBack2.png";
+	public static String Back1Fil = "/WinBack.png";
 	public static String HallFil = "/HallOfFame.png";
+	public static String IntroFil = "/Intro.png";
 	public static int PklScale = 250;
 	public static int PklXDis = 280;
 	public static int PklYDis = 330;
@@ -95,11 +111,10 @@ public class SnakePro extends BasicGame{
 			"/HallPokal8.png"};
 	public static Image[] Pokale = new Image[pokaleFil.length];
 	
-	public static Image Back1;
-	public static Image Back2;
+	public static Image Back;
 	public static Image HallOfFame;
 	public static String ParaFil = "Parameter.txt";
-	public static String StatFil = "Statistics.txt";
+	public static String StatFil = "stats/Statistics.txt";
 
 	public static String[] Eating = {
 			"Sounds/fressen1.wav",
@@ -174,6 +189,7 @@ public class SnakePro extends BasicGame{
 	public int bossTime = 300;
 	public boolean showFps = true;
 	public boolean setFullscreen = true;
+	public String configFile = "cfg/config.txt";
 	
 	public List<Player> snakes = new ArrayList<Player>();
 	public List<ImgObject> food = new ArrayList<ImgObject>();
@@ -195,6 +211,8 @@ public class SnakePro extends BasicGame{
 	public List<Integer> scores = new ArrayList<Integer>();
 	public List<TextField> nameFields = new ArrayList<TextField>();
 	public boolean displayHallOfFame;
+	public boolean displayStats = false;
+	public Image statsImg;
 
 	public SnakePro(String Settings) throws SlickException, FileNotFoundException {
 		super("SnakePro");
@@ -223,6 +241,14 @@ public class SnakePro extends BasicGame{
 		ImageFil =          l.get(20);
 		showFps = 			Boolean.parseBoolean(l.get(21));
 		setFullscreen = 	Boolean.parseBoolean(l.get(22));
+		configFile = "cfg/"+ImageFil+"config.txt";
+		List<String> config = readFile(configFile, "=");
+		nameChoosePos[0] = (int) (screenX*(Double.parseDouble(config.get(0))/1920.0));
+		nameChoosePos[1] = (int) (screenY*(Double.parseDouble(config.get(1))/1080.0));
+		winImgPos[0] = (int) (screenX*(    Double.parseDouble(config.get(2))/1920.0));
+		winImgPos[1] = (int) (screenY*(    Double.parseDouble(config.get(3))/1080.0));
+		winImgScale[0] = (int) (screenX*(  Double.parseDouble(config.get(4))/1920.0));
+		winImgScale[1] = (int) (screenY*(  Double.parseDouble(config.get(5))/1080.0));
 	}
 	
 	public List<String> readFile(String filename, String Splitter) throws FileNotFoundException {
@@ -232,8 +258,10 @@ public class SnakePro extends BasicGame{
 		while(sc.hasNextLine()) {
 			String l = sc.nextLine().replace(" ", "");
 			String [] ls = l.split(Splitter);
-			l = ls[ls.length-1];
-			lines.add(l);
+			if(ls.length>1) {
+				l = ls[ls.length-1];
+				lines.add(l);
+			}
 		}
 		sc.close();
 		return lines;
@@ -319,8 +347,7 @@ public class SnakePro extends BasicGame{
 		
 		foodImg = new Image(ImageFil+FoodFil).getScaledCopy(pieceWidth, pieceHeight).getScaledCopy(FoodScale);
 		
-		Back1 = new Image(ImageFil+Back1Fil).getScaledCopy(screenX, screenY);
-		Back2 = new Image(ImageFil+Back2Fil).getScaledCopy(screenX, screenY);
+		Back = new Image(ImageFil+Back1Fil).getScaledCopy(screenX, screenY);
 		HallOfFame = new Image(ImageFil+HallFil).getScaledCopy(screenX, screenY);
 		
 		int scl = (int)(screenX*(PklScale/1920.0));
@@ -329,7 +356,7 @@ public class SnakePro extends BasicGame{
 		}
 		
 		gc.setIcon(ImageFil+iconFile);
-		TextFont = new Font("Verdana", Font.BOLD, (int) (screenX*(35.0/1920.0)));
+		TextFont = new Font("Comic Sans MS", Font.BOLD, (int) (screenX*(35.0/1920.0)));
 		TextTTFont= new TrueTypeFont(TextFont, false);
 		gc.setShowFPS(showFps);
 		gc.setFullscreen(setFullscreen);
@@ -372,7 +399,7 @@ public class SnakePro extends BasicGame{
 			TextField tf = new TextField(gc, TextTTFont, nameChoosePos[0], nameChoosePos[1]+i*scale, scale*5, scale);
 			tf.setText(choosenNames[i]);
 			tf.setBackgroundColor(null);
-			//tf.setBorderColor(null);
+			tf.setBorderColor(null);
 			nameFields.add(tf);
 		}
 		lasers.clear();
@@ -385,6 +412,7 @@ public class SnakePro extends BasicGame{
 		lastPlCounter = 0;
 		playing = true;
 		displayHallOfFame = false;
+		displayStats = false;
 	}
 	
 	@Override
@@ -403,14 +431,34 @@ public class SnakePro extends BasicGame{
 		if(lastIn.isKeyPressed(Input.KEY_TAB) && !playing) {
 			displayHallOfFame = !displayHallOfFame;
 		}
-		if(lastIn.isKeyPressed(Input.KEY_RETURN) && !playing) {
-			if(Statistics.isShowingStats()) {
-				Statistics.chart.dispose();
-			}
-			for(Player p: snakes) {
+		if(lastIn.isKeyPressed(Input.KEY_S) && !playing) {
+			displayStats = !displayStats;
+			for(Player p:snakes) {
 				p.stats.writeStats();
 			}
-			Statistics.showStats();
+			JFreeChart jf = Statistics.showStats();
+			BufferedImage objBufferedImage = jf.createBufferedImage(screenX,screenY);
+			try {
+				statsImg = new Image(BufferedImageUtil.getTexture("stats/Stats.png", objBufferedImage));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			ByteArrayOutputStream bas = new ByteArrayOutputStream();
+			try {
+				ImageIO.write(objBufferedImage, "png", bas);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			byte[] byteArray=bas.toByteArray();
+			InputStream in = new ByteArrayInputStream(byteArray);
+			BufferedImage image;
+			try {
+				image = ImageIO.read(in);
+				File outputfile = new File("stats/Stats.png");
+				ImageIO.write(image, "png", outputfile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		if(player > 1) {
 			if(controllerUp[0]) {
@@ -505,7 +553,7 @@ public class SnakePro extends BasicGame{
 								setDeadPlayer.add(p);
 							}
 							if(b.getHead().inList(p.pieces) > 0 && !setDeadBosses.contains(b)) {
-								//setDeadBosses.add(b);
+								setDeadBosses.add(b);
 								p.stats.addKill(Dead.Boss);
 							}
 						}
@@ -748,24 +796,38 @@ public class SnakePro extends BasicGame{
 				}
 				playing = false;
 				lastPlCounter = 0;
-				for(TextField tf : nameFields) {
-					tf.inputStarted();
-				}
 			}
 			frameCounter ++;
 		}else {
 			gc.setMouseGrabbed(false);
 			drawConName = -1;
+			int x = lastIn.getMouseX();
+			int y = lastIn.getMouseY();
+			boolean backFocus = true;
 			for(TextField tf : nameFields) {
-				choosenNames[nameFields.indexOf(tf)] = tf.getText();
-				int x = lastIn.getMouseX();
-				int y = lastIn.getMouseY();
 				if(x>tf.getX() && x<tf.getX()+tf.getWidth()
 				&& y>tf.getY() && y<tf.getY()+tf.getHeight()) {
 					drawConName = nameFields.indexOf(tf);
+					if(lastIn.isMouseButtonDown(0)) {
+						tf.setFocus(true);
+					}
+				}else {
+					if(lastIn.isMouseButtonDown(0)) {
+						tf.setFocus(false);
+					}
+				}
+				if(tf.hasFocus()) {
+					snakes.get(nameFields.indexOf(tf)).stats.name = tf.getText();
+					backFocus = false;
 				}
 			}
-			if(lastIn.isKeyDown(Input.KEY_SPACE)) {
+			if(lastIn.isKeyPressed(Input.KEY_P) && backFocus) {
+				for(TextField tf : nameFields) {
+					choosenNames[nameFields.indexOf(tf)] = tf.getText();
+				}
+				for(Player p:snakes) {
+					p.stats.writeStats();
+				}
 				reset(gc);
 			}
 		}
@@ -851,26 +913,29 @@ public class SnakePro extends BasicGame{
 				}
 			}
 		}else {
-			if(!displayHallOfFame) {
-				g.drawImage(Back1,0,0);
-				g.drawImage(Back2, 0, 0);
+			if(displayStats && statsImg != null) {
+				g.drawImage(statsImg, 0, 0);
+			}else if(!displayHallOfFame) {
+				g.drawImage(Back,0,0);
 				for(TextField tf:nameFields) {
 					g.setColor(snakes.get(nameFields.indexOf(tf)).color);
 					tf.render(gc, g);
 				}
 				if(scores.size() == player) {
-					Image winImg = new Image(ImageFil+HeadSvg.get(scores.indexOf(Collections.max(scores)))).getScaledCopy((int) (screenX*(400.0/1920.0)), (int) (screenY*(400.0/1080.0)));
+					Image winImg = new Image(ImageFil+HeadSvg.get(scores.indexOf(Collections.max(scores)))).getScaledCopy(winImgScale[0], winImgScale[1]);
 					
 					winImg.rotate(90);
-					g.drawImage(winImg,(int)(screenX*(1168.0/1920.0)),(int)(screenY*(118.0/1080.0)));
-					g.drawImage(Back2, 0, 0);
+					g.drawImage(winImg,winImgPos[0], winImgPos[1]);
 					for(int i=0; i<snakes.size(); i++) {
 						Player p = snakes.get(i);
 						TextTTFont.drawString(
-								(int)(screenX*(550.0/1920.0)),
-								(int) (screenY*(250.0/1080.0)+i*screenX*(50.0/1920.0)),
+								nameChoosePos[0]+(int)(screenY*(250.0/1080.0)),
+								nameChoosePos[1]+(int)(i*screenY*(50.0/1080.0)),
 								": "+p.score, p.color);
 					}
+				}else {
+					Image winImg = new Image(ImageFil+IntroFil).getScaledCopy(winImgScale[0], winImgScale[1]);
+					g.drawImage(winImg,winImgPos[0], winImgPos[1]);
 				}
 				if(drawConName >= 0) {
 					TextTTFont.drawString(
@@ -899,21 +964,21 @@ public class SnakePro extends BasicGame{
 					}
 					Image newImage;
 					if(timesInList <= 1) {
-						newImage = new Image(ImageFil+HeadSvg.get(sttLis.indexOf(Collections.max(sttLis)))).getScaledCopy(HdScale, HdScale);
+						newImage = new Image(ImageFil+Heads.get(sttLis.indexOf(Collections.max(sttLis)))).getScaledCopy(HdScale, HdScale);
 					}else {
-						newImage = new Image(ImageFil+HeadSvg.get(sttLis.indexOf(Collections.max(sttLis)))).getScaledCopy(0, 0);
+						newImage = new Image(ImageFil+Heads.get(sttLis.indexOf(Collections.max(sttLis)))).getScaledCopy(0, 0);
 					}
 					newImage.rotate(90);
 					bestImgs.add(newImage);
 				}
 				
 				for(int i=0; i<4; i++) {
-					g.drawImage(bestImgs.get(i), PklXDis+(PklScale+PklSpac)*i+PklScale/2-HdScale/2, PklYDis-HdScale+20);
+					g.drawImage(bestImgs.get(i), PklXDis+(PklScale+PklSpac)*i+PklScale/2-HdScale/2, PklYDis-HdScale+30);
 					TextTTFont.drawString(PklXDis+(PklScale+PklSpac)*i+PklScale, PklYDis, Integer.toString(Collections.max(l.get(i))), new Color(0,0,0));
 					g.drawImage(Pokale[i], PklXDis+(PklScale+PklSpac)*i, PklYDis);
 				}
 				for(int i=4; i<8; i++) {
-					g.drawImage(bestImgs.get(i), PklXDis+(PklScale+PklSpac)*(i-4)+PklScale/2-HdScale/2, PklYDis2-HdScale+20);
+					g.drawImage(bestImgs.get(i), PklXDis+(PklScale+PklSpac)*(i-4)+PklScale/2-HdScale/2, PklYDis2-HdScale+30);
 					TextTTFont.drawString(PklXDis+(PklScale+PklSpac)*(i-4)+PklScale, PklYDis2, Integer.toString(Collections.max(l.get(i))), new Color(0,0,0));
 					g.drawImage(Pokale[i], PklXDis+(PklScale+PklSpac)*(i-4), PklYDis2);
 				}

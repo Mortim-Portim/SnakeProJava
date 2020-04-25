@@ -1,7 +1,9 @@
 package snake;
 
 import java.awt.Event;
+import java.awt.Image;
 import java.awt.Window;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
@@ -27,27 +29,24 @@ public class BarChart extends JFrame {
 	      this.dataset = new DefaultCategoryDataset();
 	   }
 	   
-	   private void createChart() {
+	   public JFreeChart createChart() {
 		   barChart = ChartFactory.createBarChart(
 			         chartTitle,           
 			         "Category",            
 			         "Score",            
 			         dataset,          
-			         PlotOrientation.HORIZONTAL,           
+			         PlotOrientation.VERTICAL,           
 			         true, true, false);
+		   /**ChartPanel chartPanel = new ChartPanel(barChart);
+		   chartPanel.setPreferredSize(new java.awt.Dimension(SnakePro.screenX,SnakePro.screenY) );   
+		   setContentPane( chartPanel );
+		   this.pack( );**/
+		   return barChart;
 	   }
 	   
 	   public void showChart() {
-		   createChart();
-		   ChartPanel chartPanel = new ChartPanel(barChart);
-		   chartPanel.setPreferredSize(new java.awt.Dimension(SnakePro.screenX,SnakePro.screenY) );   
-		   setContentPane( chartPanel );
-		   this.pack( );     
+		   createChart();   
 		   RefineryUtilities.centerFrameOnScreen( this ); 
 		   this.setVisible( true ); 
-	   }
-	   
-	   public static void main( String[ ] args ) {
-	      Statistics.showStats();
 	   }
 	}

@@ -1,0 +1,7 @@
+DefaultConfig
+Name X pos = 740.0
+Name Y pos = 570.0
+Win Head X pos = 48.0
+Win Head Y pos = 0.0
+Win Head X scale = 400.0
+Win Head X scale = 400.0
