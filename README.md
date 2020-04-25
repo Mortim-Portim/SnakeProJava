@@ -18,6 +18,10 @@ To run SnakePro on Linux, execute:
 To run SnakePro on Windows, execute:
 
 	SnakePro.bat
+
+To change Settings open:
+	
+	Parameter.txt
 ![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro1.png)
 ![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro2.png)
 ![alt text](https://github.com/Mortim-Portim/SnakePro/blob/master/SnakePro3.png)
