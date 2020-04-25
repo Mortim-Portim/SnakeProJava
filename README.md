@@ -23,7 +23,7 @@ To change Settings open:
 	
 	Parameter.txt
 
-To reset statistics open:
+To view and change Statistics open:
 	
 	stats/Statistics.txt
 
