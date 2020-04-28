@@ -47,7 +47,6 @@ public class InputTest extends BasicGame {
 	/** True if right shift is down */
 	private boolean rshift;
 	
-	private Controller Wiimote;
 	/**
 	 * Create a new input test
 	 */
@@ -67,7 +66,8 @@ public class InputTest extends BasicGame {
 		input = container.getInput();
 		System.out.println(Controllers.getControllerCount());
 		for(int i=0; i<Controllers.getControllerCount(); i++) {
-			System.out.println(i+": "+Controllers.getController(i).getAxisCount());
+			int axisCount = Controllers.getController(i).getAxisCount();
+			System.out.println(i+": "+axisCount);
 		}
 		
 		System.out.println();
@@ -125,7 +125,28 @@ public class InputTest extends BasicGame {
 		if (controllerDown[0]) {
 			y += delta * 0.1f;
 		}
+		Input in = container.getInput();
+		System.out.println(Controllers.next());
 	}
+	
+	//Joy-Cons:
+	/**
+	 * R down is Axis 0 = 1.0
+	 * ZR down is Axis 1 = 1.0
+	 * all other buttons are registered as buttons (container.getInput().isButtonPressed(int button, int controller))
+	 * When using controllerButtonPressed add 1
+	 * A is Button 0
+	 * X is Button 1
+	 * B is Button 2
+	 * Y is Button 3
+	 * SL is Button 4
+	 * SR is Button 5
+	 * + is Button 9
+	 * HOME is Button 11
+	 * R is Button 13
+	
+	
+	**/
 
 	/**
 	 * @see org.newdawn.slick.BasicGame#keyPressed(int, char)
@@ -260,9 +281,37 @@ public class InputTest extends BasicGame {
 	@Override
 	public void controllerButtonPressed(int controller, int button) {
 		super.controllerButtonPressed(controller, button);
-		
+		debugPrintln(button);
 		index ++;
 		index %= cols.length;
+	}
+	
+	@Override
+	public void controllerDownPressed(int controller) {
+		debugPrintln("down");
+		super.controllerDownPressed(controller);
+	}
+	
+	@Override
+	public void controllerUpPressed(int controller) {
+		debugPrintln("up");
+		super.controllerUpPressed(controller);
+	}
+	
+	@Override
+	public void controllerRightPressed(int controller) {
+		debugPrintln("right");
+		super.controllerRightPressed(controller);
+	}
+	
+	@Override
+	public void controllerLeftPressed(int controller) {
+		debugPrintln("left");
+		super.controllerLeftPressed(controller);
+	}
+	
+	public static void debugPrintln(Object o) {
+		//System.out.println(o);
 	}
 	
 	/**

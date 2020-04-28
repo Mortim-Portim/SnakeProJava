@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.jfree.chart.JFreeChart;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Controllers;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -35,6 +36,8 @@ import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.gui.TextField;
 import org.newdawn.slick.util.BufferedImageUtil;
+
+import net.java.games.input.Controller;
 
 public class SnakePro extends BasicGame{
 	public static int screenX = 1920;
@@ -835,16 +838,24 @@ public class SnakePro extends BasicGame{
 						playerNum[i] = newPlayNum.get(i);
 					}
 					resetNames(gc);
+				}else if(lastIn.isKeyPressed(Input.KEY_R) && backFocus) {
+					player = gc.getInput().getControllerCount()+1;
+					initNames(gc);
+					resetNames(gc);
 				}
 			}
 			if(lastIn.isKeyPressed(Input.KEY_P) && backFocus) {
-				for(TextField tf : nameFields) {
-					choosenNames[nameFields.indexOf(tf)] = tf.getText();
+				if(player > 1) {
+					for(TextField tf : nameFields) {
+						choosenNames[nameFields.indexOf(tf)] = tf.getText();
+					}
+					for(Player p:snakes) {
+						p.stats.writeStats();
+					}
+					reset(gc);
+				}else {
+					System.out.println("Please add players");
 				}
-				for(Player p:snakes) {
-					p.stats.writeStats();
-				}
-				reset(gc);
 			}
 			if(lastIn.isKeyPressed(Input.KEY_TAB) && (backFocus || displayHallOfFame)) {
 				displayStats = false;
@@ -863,23 +874,6 @@ public class SnakePro extends BasicGame{
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				/**
-				ByteArrayOutputStream bas = new ByteArrayOutputStream();
-				try {
-					ImageIO.write(objBufferedImage, "png", bas);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				byte[] byteArray=bas.toByteArray();
-				InputStream in = new ByteArrayInputStream(byteArray);
-				BufferedImage image;
-				try {
-					image = ImageIO.read(in);
-					File outputfile = new File("stats/Stats.png");
-					ImageIO.write(image, "png", outputfile);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}**/
 			}
 		}
 		}
