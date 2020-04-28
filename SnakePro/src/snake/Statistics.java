@@ -125,8 +125,20 @@ public class Statistics {
 	
 	public void writeStats() {
 		int indx=-1;
-		for(int i=0; i<loadedFil.size(); i++) {
+		for(int i=1; i<loadedFil.size(); i++) {
+			boolean equalsA = false;
+			for(int a=1; a<loadedFil.get(i).length; a++) {
+				if(loadedFil.get(lineIndex)[a].equals(loadedFil.get(i)[a])) {
+					equalsA = true;
+				}else {
+					equalsA = false;
+					break;
+				}
+			}
 			if(this.name.equals(loadedFil.get(i)[0])) {
+				equalsA = true;
+			}
+			if(equalsA) {
 				indx = i;
 				break;
 			}
@@ -167,7 +179,6 @@ public class Statistics {
 			
 			writer.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

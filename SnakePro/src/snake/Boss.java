@@ -13,6 +13,7 @@ public class Boss extends Snake{
 	public static int maxTries = 20;
 	public int pieceTry = 0;
 	public int time;
+	public boolean[][] matrix;
 	
 	public Boss(Image Head, int startLenght, int x, int y, int BossTime) throws SlickException {
 		super();
@@ -76,6 +77,7 @@ public class Boss extends Snake{
 	}
 	
 	public void calcDirFast(boolean [][] mat, Piece target) {
+		matrix = mat;
 		Piece hd = getHead();
 		int xdis = hd.xPos-target.xPos;
 		int ydis = hd.yPos-target.yPos;
@@ -98,6 +100,7 @@ public class Boss extends Snake{
 	}
 	
 	public void calcDirSlow(boolean [][] mat, Piece target) {
+		matrix = mat;
 		nextDir = calcDir(mat, target);
 		changeDirection();
 	}

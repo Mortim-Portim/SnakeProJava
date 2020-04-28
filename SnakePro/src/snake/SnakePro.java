@@ -201,7 +201,11 @@ public class SnakePro extends BasicGame{
 	public int lastPlCounter = 0;
 	public boolean playing = false;
 	public String[] choosenNames;
+	public String[] orChoosenNames;
 	public String[] controller;
+	public String[] orController;
+	public int[] playerNum;
+	public int[] orPlayerNum;
 	public List<Integer> scores = new ArrayList<Integer>();
 	public List<TextField> nameFields = new ArrayList<TextField>();
 	public boolean displayHallOfFame;
@@ -212,29 +216,28 @@ public class SnakePro extends BasicGame{
 		super("SnakePro");
 		Statistics.loadStats();
 		List<String> l = readFile(ParaFil, "=");
-		this.player = 		Integer.parseInt(l.get(0));
-		speed = 	  		20-Integer.parseInt(l.get(1));
-		startLenght = 		Integer.parseInt(l.get(2));
-		foodCount =   		Integer.parseInt(l.get(3));
-		growthRate =  		Integer.parseInt(l.get(4));
-		itemCount =   		Integer.parseInt(l.get(5));
-		spawnItemFrequency =(int) (Double.parseDouble(l.get(6))*frameRate);
-		speedLenght = 		Integer.parseInt(l.get(7));
-		LaserTime = 		(int) (Double.parseDouble(l.get(8))*frameRate);
-		LaserLenght = 		Integer.parseInt(l.get(9));
-		bombRadius = 		Integer.parseInt(l.get(10));
-		bombTime = 			(int) (Double.parseDouble(l.get(11))*frameRate);
-		bombDis = 			Integer.parseInt(l.get(12));
-		lastPlTime =		(int) (Double.parseDouble(l.get(13))*frameRate);
-		botSpeed = 			Double.parseDouble(l.get(14));
-		bossSpawnFrequency =(int) (Double.parseDouble(l.get(15))*frameRate);
-		bossSpawnTime =     (int) (Double.parseDouble(l.get(16))*frameRate);
-		bossLenght =        Integer.parseInt(l.get(17));
-		bossSpeed =         Double.parseDouble(l.get(18));
-		bossTime = 			(int) (Double.parseDouble(l.get(19))*frameRate);
-		ImageFil =          l.get(20);
-		showFps = 			Boolean.parseBoolean(l.get(21));
-		setFullscreen = 	Boolean.parseBoolean(l.get(22));
+		speed = 	  		20-Integer.parseInt(l.get(0));
+		startLenght = 		Integer.parseInt(l.get(1));
+		foodCount =   		Integer.parseInt(l.get(2));
+		growthRate =  		Integer.parseInt(l.get(3));
+		itemCount =   		Integer.parseInt(l.get(4));
+		spawnItemFrequency =(int) (Double.parseDouble(l.get(5))*frameRate);
+		speedLenght = 		Integer.parseInt(l.get(6));
+		LaserTime = 		(int) (Double.parseDouble(l.get(7))*frameRate);
+		LaserLenght = 		Integer.parseInt(l.get(8));
+		bombRadius = 		Integer.parseInt(l.get(9));
+		bombTime = 			(int) (Double.parseDouble(l.get(10))*frameRate);
+		bombDis = 			Integer.parseInt(l.get(11));
+		lastPlTime =		(int) (Double.parseDouble(l.get(12))*frameRate);
+		botSpeed = 			Double.parseDouble(l.get(13));
+		bossSpawnFrequency =(int) (Double.parseDouble(l.get(14))*frameRate);
+		bossSpawnTime =     (int) (Double.parseDouble(l.get(15))*frameRate);
+		bossLenght =        Integer.parseInt(l.get(16));
+		bossSpeed =         Double.parseDouble(l.get(17));
+		bossTime = 			(int) (Double.parseDouble(l.get(18))*frameRate);
+		ImageFil =          l.get(19);
+		showFps = 			Boolean.parseBoolean(l.get(20));
+		setFullscreen = 	Boolean.parseBoolean(l.get(21));
 		configFile = "cfg/"+ImageFil+"config.txt";
 		List<String> config = readFile(configFile, "=");
 		nameChoosePos[0] = (int) (screenX*(Double.parseDouble(config.get(0))/1920.0));
@@ -295,8 +298,10 @@ public class SnakePro extends BasicGame{
 	}
 	
 	public void initNames(GameContainer gc) throws SlickException {
+		int[] plLoc = {1, 2, 3, 4};
 		choosenNames = new String[player];
 		controller = new String[player];
+		playerNum = new int[player];
 		for(int i=0; i<player; i++) {
 			String con;
 			if(i > 0 && i < gc.getInput().getControllerCount()+1 && Controllers.getController(i-1).getAxisCount()>2) {
@@ -315,15 +320,12 @@ public class SnakePro extends BasicGame{
 					choosenNames[i] = Integer.toString(i+1);
 				}
 			}
-			/**JOptionPane pane = new JOptionPane("Who is using "+con+" ?");
-			pane.setWantsInput(true);
-			pane.setInitialSelectionValue(choosenNames[i]);
-			JDialog dialog = pane.createDialog("SnakePro");
-			dialog.setVisible(true);
-			String play = (String) pane.getInputValue();
-			choosenNames[i] = play;**/
 			controller[i] = con;
+			playerNum[i] = plLoc[i];
 		}
+		orPlayerNum = playerNum.clone();
+		orChoosenNames = choosenNames.clone();
+		orController = controller.clone();
 		/**Window[] w = Window.getWindows();
 		gc.setFullscreen(false);
 		w[0].toFront();
@@ -332,6 +334,7 @@ public class SnakePro extends BasicGame{
 	
 	@Override
 	public void init(GameContainer gc) throws SlickException {
+		player = gc.getInput().getControllerCount()+1;
 		Items.clear();
 		Items.add(new Image(ImageFil+ItemFil1).getScaledCopy(pieceWidth, pieceHeight).getScaledCopy(ItemScale));
 		Items.add(new Image(ImageFil+ItemFil2).getScaledCopy(pieceWidth, pieceHeight).getScaledCopy(ItemScale));
@@ -373,11 +376,28 @@ public class SnakePro extends BasicGame{
 		}
 	}
 	
-	public void reset(GameContainer gc) throws SlickException {
-		snakes.clear();
-		for(int i=0; i<player; i++) {
-			snakes.add(new Player(i+1, new Image(ImageFil+Heads.get(i)), startLenght, choosenNames[i], controller[i]));
+	public void resetNames(GameContainer gc) throws SlickException {
+		for(Player p:snakes) {
+			p.stats.writeStats();
 		}
+		snakes.clear();
+		for(int a=0; a<player; a++) {
+			int b = playerNum[a];
+			snakes.add(new Player(b, new Image(ImageFil+Heads.get(b-1)), startLenght, choosenNames[a], controller[a]));
+		}
+		nameFields.clear();
+		for(int i=0; i<player; i++) {
+			int scale = (int) (screenY*(50.0/1080.0));
+			TextField tf = new TextField(gc, TextTTFont, nameChoosePos[0], nameChoosePos[1]+i*scale, scale*5, scale);
+			tf.setText(choosenNames[i]);
+			tf.setBackgroundColor(null);
+			tf.setBorderColor(null);
+			nameFields.add(tf);
+		}
+	}
+	
+	public void reset(GameContainer gc) throws SlickException {
+		resetNames(gc);
 		food.clear();
 		for(int i=0; i<foodCount; i++) {
 			food.add(new ImgObject(foodImg, random.nextInt(xPcs), random.nextInt(yPcs)));
@@ -386,15 +406,6 @@ public class SnakePro extends BasicGame{
 		for(int i=0; i<itemCount; i++) {
 			int type = random.nextInt(Items.size())+1;
 			items.add(new Item(Items.get(type-1), random.nextInt(xPcs), random.nextInt(yPcs), type));
-		}
-		nameFields.clear();
-		for(int i=0; i<choosenNames.length; i++) {
-			int scale = (int) (screenY*(50.0/1080.0));
-			TextField tf = new TextField(gc, TextTTFont, nameChoosePos[0], nameChoosePos[1]+i*scale, scale*5, scale);
-			tf.setText(choosenNames[i]);
-			tf.setBackgroundColor(null);
-			tf.setBorderColor(null);
-			nameFields.add(tf);
 		}
 		lasers.clear();
 		bots.clear();
@@ -421,38 +432,6 @@ public class SnakePro extends BasicGame{
 			snakes.get(0).nextDir = Direction.left;
 		}else if(lastIn.isKeyDown(Input.KEY_RIGHT)) {
 			snakes.get(0).nextDir = Direction.right;
-		}
-		if(lastIn.isKeyPressed(Input.KEY_TAB) && !playing) {
-			displayHallOfFame = !displayHallOfFame;
-		}
-		if(lastIn.isKeyPressed(Input.KEY_S) && !playing) {
-			displayStats = !displayStats;
-			for(Player p:snakes) {
-				p.stats.writeStats();
-			}
-			JFreeChart jf = Statistics.showStats();
-			BufferedImage objBufferedImage = jf.createBufferedImage(screenX,screenY);
-			try {
-				statsImg = new Image(BufferedImageUtil.getTexture("stats/Stats.png", objBufferedImage));
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			ByteArrayOutputStream bas = new ByteArrayOutputStream();
-			try {
-				ImageIO.write(objBufferedImage, "png", bas);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			byte[] byteArray=bas.toByteArray();
-			InputStream in = new ByteArrayInputStream(byteArray);
-			BufferedImage image;
-			try {
-				image = ImageIO.read(in);
-				File outputfile = new File("stats/Stats.png");
-				ImageIO.write(image, "png", outputfile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 		if(player > 1) {
 			if(controllerUp[0]) {
@@ -794,25 +773,68 @@ public class SnakePro extends BasicGame{
 			frameCounter ++;
 		}else {
 			gc.setMouseGrabbed(false);
-			drawConName = -1;
-			int x = lastIn.getMouseX();
-			int y = lastIn.getMouseY();
-			boolean backFocus = true;
-			for(TextField tf : nameFields) {
-				if(x>tf.getX() && x<tf.getX()+tf.getWidth()
-				&& y>tf.getY() && y<tf.getY()+tf.getHeight()) {
-					drawConName = nameFields.indexOf(tf);
-					if(lastIn.isMouseButtonDown(0)) {
+			boolean backFocus = false;
+			if(!displayStats && !displayHallOfFame) {
+				backFocus = true;
+				drawConName = -1;
+				int x = lastIn.getMouseX();
+				int y = lastIn.getMouseY();
+				for(TextField tf : nameFields) {
+					tf.setFocus(false);
+					int tfIndx = nameFields.indexOf(tf);
+					if(x>tf.getX() && x<tf.getX()+tf.getWidth()
+					&& y>tf.getY() && y<tf.getY()+tf.getHeight()) {
+						drawConName = tfIndx;
 						tf.setFocus(true);
+						int changeIdx = tfIndx;
+						if(lastIn.isKeyPressed(Input.KEY_F1) && player > 0) {
+							changeIdx = 0;
+						}else if(lastIn.isKeyPressed(Input.KEY_F2) && player > 1) {
+							changeIdx = 1;
+						}else if(lastIn.isKeyPressed(Input.KEY_F3) && player > 2) {
+							changeIdx = 2;
+						}else if(lastIn.isKeyPressed(Input.KEY_F4) && player > 3) {
+							changeIdx = 3;
+						}
+						if(changeIdx != tfIndx) {
+							int oldPlayNum = playerNum[tfIndx];
+							playerNum[tfIndx] = playerNum[changeIdx];
+							playerNum[changeIdx] = oldPlayNum;
+							for(TextField tf2 : nameFields) {
+								choosenNames[nameFields.indexOf(tf2)] = tf2.getText();
+							}
+							resetNames(gc);
+							break;
+						}
 					}
-				}else {
-					if(lastIn.isMouseButtonDown(0)) {
-						tf.setFocus(false);
+					if(tf.hasFocus()) {
+						snakes.get(tfIndx).stats.name = tf.getText();
+						backFocus = false;
 					}
 				}
-				if(tf.hasFocus()) {
-					snakes.get(nameFields.indexOf(tf)).stats.name = tf.getText();
-					backFocus = false;
+				if(lastIn.isKeyPressed(Input.KEY_A) && backFocus && playerNum.length < orPlayerNum.length) {
+					player ++;
+					List<Integer> newPlayNum = new ArrayList<Integer>();
+					for(int i=0; i<playerNum.length; i++) {
+						newPlayNum.add(playerNum[i]);
+					}
+					playerNum = new int[playerNum.length+1];
+					for(int i=0; i<newPlayNum.size(); i++) {
+						playerNum[i] = newPlayNum.get(i);
+					}
+					playerNum[playerNum.length-1] = orPlayerNum[playerNum.length-1];
+					resetNames(gc);
+				}else if(lastIn.isKeyPressed(Input.KEY_DELETE) && backFocus && playerNum.length > 1) {
+					player --;
+					List<Integer> newPlayNum = new ArrayList<Integer>();
+					for(int i=0; i<playerNum.length-1; i++) {
+						newPlayNum.add(playerNum[i]);
+					}
+					playerNum = new int[playerNum.length-1];
+					for(int i=0; i<newPlayNum.size(); i++) {
+						playerNum[i] = newPlayNum.get(i);
+					}
+					resetNames(gc);
 				}
 			}
 			if(lastIn.isKeyPressed(Input.KEY_P) && backFocus) {
@@ -823,6 +845,41 @@ public class SnakePro extends BasicGame{
 					p.stats.writeStats();
 				}
 				reset(gc);
+			}
+			if(lastIn.isKeyPressed(Input.KEY_TAB) && (backFocus || displayHallOfFame)) {
+				displayStats = false;
+				displayHallOfFame = !displayHallOfFame;
+			}
+			if(lastIn.isKeyPressed(Input.KEY_S) && (backFocus || displayStats)) {
+				displayHallOfFame =false;
+				displayStats = !displayStats;
+				for(Player p:snakes) {
+					p.stats.writeStats();
+				}
+				JFreeChart jf = Statistics.showStats();
+				BufferedImage objBufferedImage = jf.createBufferedImage(screenX,screenY);
+				try {
+					statsImg = new Image(BufferedImageUtil.getTexture("stats/Stats.png", objBufferedImage));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				/**
+				ByteArrayOutputStream bas = new ByteArrayOutputStream();
+				try {
+					ImageIO.write(objBufferedImage, "png", bas);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				byte[] byteArray=bas.toByteArray();
+				InputStream in = new ByteArrayInputStream(byteArray);
+				BufferedImage image;
+				try {
+					image = ImageIO.read(in);
+					File outputfile = new File("stats/Stats.png");
+					ImageIO.write(image, "png", outputfile);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}**/
 			}
 		}
 		}
@@ -916,7 +973,7 @@ public class SnakePro extends BasicGame{
 					tf.render(gc, g);
 				}
 				if(scores.size() == player) {
-					Image winImg = new Image(ImageFil+HeadSvg.get(scores.indexOf(Collections.max(scores)))).getScaledCopy(winImgScale[0], winImgScale[1]);
+					Image winImg = new Image(ImageFil+HeadSvg.get(snakes.get(scores.indexOf(Collections.max(scores))).Playernum-1)).getScaledCopy(winImgScale[0], winImgScale[1]);
 					
 					winImg.rotate(90);
 					g.drawImage(winImg,winImgPos[0], winImgPos[1]);
@@ -925,7 +982,7 @@ public class SnakePro extends BasicGame{
 						TextTTFont.drawString(
 								nameChoosePos[0]+(int)(screenY*(250.0/1080.0)),
 								nameChoosePos[1]+(int)(i*screenY*(50.0/1080.0)),
-								": "+p.score, p.color);
+								": "+scores.get(i), p.color);
 					}
 				}else {
 					Image winImg = new Image(ImageFil+IntroFil).getScaledCopy(winImgScale[0], winImgScale[1]);
@@ -958,9 +1015,9 @@ public class SnakePro extends BasicGame{
 					}
 					Image newImage;
 					if(timesInList <= 1) {
-						newImage = new Image(ImageFil+Heads.get(sttLis.indexOf(Collections.max(sttLis)))).getScaledCopy(HdScale, HdScale);
+						newImage = new Image(ImageFil+Heads.get(snakes.get(sttLis.indexOf(Collections.max(sttLis))).Playernum-1)).getScaledCopy(HdScale, HdScale);
 					}else {
-						newImage = new Image(ImageFil+Heads.get(sttLis.indexOf(Collections.max(sttLis)))).getScaledCopy(0, 0);
+						newImage = new Image(ImageFil+Heads.get(0)).getScaledCopy(0, 0);
 					}
 					newImage.rotate(90);
 					bestImgs.add(newImage);
