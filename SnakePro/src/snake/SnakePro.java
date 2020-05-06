@@ -2,13 +2,9 @@ package snake;
 
 import java.awt.Font;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,12 +12,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.jfree.chart.JFreeChart;
-import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Controllers;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -36,8 +30,6 @@ import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.gui.TextField;
 import org.newdawn.slick.util.BufferedImageUtil;
-
-import net.java.games.input.Controller;
 
 public class SnakePro extends BasicGame{
 	public static int screenX = 1920;
@@ -790,14 +782,10 @@ public class SnakePro extends BasicGame{
 						drawConName = tfIndx;
 						tf.setFocus(true);
 						int changeIdx = tfIndx;
-						if(lastIn.isKeyPressed(Input.KEY_F1) && player > 0) {
-							changeIdx = 0;
-						}else if(lastIn.isKeyPressed(Input.KEY_F2) && player > 1) {
-							changeIdx = 1;
-						}else if(lastIn.isKeyPressed(Input.KEY_F3) && player > 2) {
-							changeIdx = 2;
-						}else if(lastIn.isKeyPressed(Input.KEY_F4) && player > 3) {
-							changeIdx = 3;
+						if(lastIn.isKeyPressed(Input.KEY_UP) && tfIndx-1 >= 0) {
+							changeIdx = tfIndx-1;
+						}else if(lastIn.isKeyPressed(Input.KEY_DOWN) && tfIndx+1<player) {
+							changeIdx = tfIndx+1;
 						}
 						if(changeIdx != tfIndx) {
 							int oldPlayNum = playerNum[tfIndx];
