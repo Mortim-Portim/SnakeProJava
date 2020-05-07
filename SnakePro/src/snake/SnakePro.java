@@ -936,9 +936,9 @@ public class SnakePro extends BasicGame{
 						drawConName = tfIndx;
 						tf.setFocus(true);
 						int changeIdx = tfIndx;
-						if(lastIn.isKeyPressed(Input.KEY_UP) && tfIndx-1 >= 0) {
+						if(lastIn.isKeyPressed(Input.KEY_UP) && lastIn.isKeyDown(Input.KEY_UP) && tfIndx-1 >= 0) {
 							changeIdx = tfIndx-1;
-						}else if(lastIn.isKeyPressed(Input.KEY_DOWN) && tfIndx+1<player) {
+						}else if(lastIn.isKeyPressed(Input.KEY_DOWN) && lastIn.isKeyDown(Input.KEY_DOWN) && tfIndx+1<player) {
 							changeIdx = tfIndx+1;
 						}
 						if(changeIdx != tfIndx) {
