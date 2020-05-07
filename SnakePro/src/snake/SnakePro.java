@@ -709,9 +709,84 @@ public class SnakePro extends BasicGame{
 					}
 				}
 				List<Direction> deadDirs = new ArrayList<Direction>();
+				List<Boolean> pressed = new ArrayList<Boolean>();
 				for(Player p : snakes) {
 					if(!p.alive) {
 						deadDirs.add(p.nextDir);
+						int snkIdx = snakes.indexOf(p);
+						if(snkIdx == 0) {
+							if(lastIn.isKeyDown(Input.KEY_UP) || 
+									lastIn.isKeyDown(Input.KEY_DOWN) ||
+									lastIn.isKeyDown(Input.KEY_LEFT) ||
+									lastIn.isKeyDown(Input.KEY_RIGHT)) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 1) {
+							if(		controllerUp[0] ||
+									controllerDown[0] ||
+									controllerLeft[0] ||
+									controllerRight[0]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 2) {
+							if(		controllerUp[1] ||
+									controllerDown[1] ||
+									controllerLeft[1] ||
+									controllerRight[1]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 3) {
+							if(		controllerUp[2] ||
+									controllerDown[2] ||
+									controllerLeft[2] ||
+									controllerRight[2]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 4) {
+							if(		controllerUp[3] ||
+									controllerDown[3] ||
+									controllerLeft[3] ||
+									controllerRight[3]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 5) {
+							if(		controllerUp[6] ||
+									controllerDown[6] ||
+									controllerLeft[6] ||
+									controllerRight[6]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 6) {
+							if(		controllerUp[7] ||
+									controllerDown[7] ||
+									controllerLeft[7] ||
+									controllerRight[7]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}else if(snkIdx == 7) {
+							if(		controllerUp[8] ||
+									controllerDown[8] ||
+									controllerLeft[8] ||
+									controllerRight[8]) {
+								pressed.add(true);
+							}else {
+								pressed.add(false);
+							}
+						}
 					}
 				}
 				for(Boss b : bosses) {
@@ -731,9 +806,11 @@ public class SnakePro extends BasicGame{
 					}
 					if(deadDirs.size() > 0){
 						int idx = random.nextInt(deadDirs.size());
-						b.nextDir = deadDirs.get(idx);
-						b.changeDirection();
-						deadDirs.remove(idx);
+						if(pressed.get(idx)) {
+							b.nextDir = deadDirs.get(idx);
+							b.changeDirection();
+							deadDirs.remove(idx);
+						}
 					}
 					b.update();
 				}

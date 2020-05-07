@@ -1,1 +1,3 @@
 Name;Wins;Deaths;Kills;BombD;WallD;LaserD;StupidD;PlayerD;BotD;BossD;BombK;LaserK;SkillK;BotK;BossK;Kontroller;
+Player1;1;3;4;0;2;0;0;1;0;0;0;0;0;0;4;keyboard;
+Player2;2;2;1;0;2;0;0;0;0;0;0;0;1;0;0;MicrosoftX-Box360pad;
