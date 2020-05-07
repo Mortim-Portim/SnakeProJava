@@ -46,14 +46,24 @@ public class SnakePro extends BasicGame{
 	public static String HeadFil2 = "/Kopf2.png";
 	public static String HeadFil3 = "/Kopf3.png";
 	public static String HeadFil4 = "/Kopf4.png";
+	public static String HeadFil5 = "/Kopf5.png";
+	public static String HeadFil6 = "/Kopf6.png";
+	public static String HeadFil7 = "/Kopf7.png";
+	public static String HeadFil8 = "/Kopf8.png";
 	public static ArrayList<String> Heads = new ArrayList<String>();
-	static {Heads.add(HeadFil1);Heads.add(HeadFil2);Heads.add(HeadFil3);Heads.add(HeadFil4);}
+	static {Heads.add(HeadFil1);Heads.add(HeadFil2);Heads.add(HeadFil3);Heads.add(HeadFil4);
+			Heads.add(HeadFil5);Heads.add(HeadFil6);Heads.add(HeadFil7);Heads.add(HeadFil8);}
 	public static String HeadSvg1 = "/Kopf1Win.png";
 	public static String HeadSvg2 = "/Kopf2Win.png";
 	public static String HeadSvg3 = "/Kopf3Win.png";
 	public static String HeadSvg4 = "/Kopf4Win.png";
+	public static String HeadSvg5 = "/Kopf5Win.png";
+	public static String HeadSvg6 = "/Kopf6Win.png";
+	public static String HeadSvg7 = "/Kopf7Win.png";
+	public static String HeadSvg8 = "/Kopf8Win.png";
 	public static ArrayList<String> HeadSvg = new ArrayList<String>();
-	static {HeadSvg.add(HeadSvg1);HeadSvg.add(HeadSvg2);HeadSvg.add(HeadSvg3);HeadSvg.add(HeadSvg4);}
+	static {HeadSvg.add(HeadSvg1);HeadSvg.add(HeadSvg2);HeadSvg.add(HeadSvg3);HeadSvg.add(HeadSvg4);
+			HeadSvg.add(HeadSvg5);HeadSvg.add(HeadSvg6);HeadSvg.add(HeadSvg7);HeadSvg.add(HeadSvg8);}
 	
 	public static float ItemScale = 2.0f;
 	public static String ItemFil1 = "/Item1.png";
@@ -68,7 +78,11 @@ public class SnakePro extends BasicGame{
 	public static int[] Itm2 = {(int) (screenX-pieceWidth*PlayerItemsScale*ItemScale),0};
 	public static int[] Itm3 = {0, (int) (screenY-pieceHeight*PlayerItemsScale*ItemScale)};
 	public static int[] Itm4 = {(int) (screenX-pieceWidth*PlayerItemsScale*ItemScale),(int) (screenY-pieceHeight*PlayerItemsScale*ItemScale)};
-	public static int[][] Itms = {Itm1, Itm2, Itm3, Itm4};
+	public static int[] Itm5 = {(int) (screenX/2-(pieceWidth*PlayerItemsScale*ItemScale)/2),0};
+	public static int[] Itm6 = {(int) (screenX-pieceWidth*PlayerItemsScale*ItemScale),(int) (screenY/2-(pieceHeight*PlayerItemsScale*ItemScale)/2)};
+	public static int[] Itm7 = {(int) (screenX/2-(pieceWidth*PlayerItemsScale*ItemScale)/2), (int) (screenY-pieceHeight*PlayerItemsScale*ItemScale)};
+	public static int[] Itm8 = {0,(int) (screenY/2-(pieceHeight*PlayerItemsScale*ItemScale)/2)};
+	public static int[][] Itms = {Itm1, Itm2, Itm3, Itm4, Itm5, Itm6, Itm7, Itm8};
 	
 	public static int[] nameChoosePos = {(int) (screenX*(280.0/1920.0)),(int) (screenY*(250.0/1080.0))};
 	public static int[] winImgPos = {(int)(screenX*(1168.0/1920.0)),(int)(screenY*(118.0/1080.0))};
@@ -77,7 +91,7 @@ public class SnakePro extends BasicGame{
 	public static Image foodImg;
 	public static float FoodScale = 1.5f;
 	public static Color laserCol = new Color(0, 180, 0);
-	public static String BotFil = "/Kopf5.png";
+	public static String BotFil = "/KopfBot.png";
 	public static String BossFil = "/Boss.png";
 	public static int BombCol = 180;
 	public static String Back1Fil = "/WinBack.png";
@@ -233,6 +247,10 @@ public class SnakePro extends BasicGame{
 		ImageFil =          l.get(19);
 		showFps = 			Boolean.parseBoolean(l.get(20));
 		setFullscreen = 	Boolean.parseBoolean(l.get(21));
+		xPcs = 				Integer.parseInt(l.get(22));
+		yPcs = 				(int) (xPcs*(36.0/64.0));
+		pieceWidth = screenX/xPcs;
+		pieceHeight = screenY/yPcs;
 		configFile = "cfg/"+ImageFil+"config.txt";
 		List<String> config = readFile(configFile, "=");
 		nameChoosePos[0] = (int) (screenX*(Double.parseDouble(config.get(0))/1920.0));
@@ -293,7 +311,7 @@ public class SnakePro extends BasicGame{
 	}
 	
 	public void initNames(GameContainer gc) throws SlickException {
-		int[] plLoc = {1, 2, 3, 4};
+		int[] plLoc = {1,2,3,4,5,6,7,8};
 		choosenNames = new String[player];
 		controller = new String[player];
 		playerNum = new int[player];
@@ -312,7 +330,7 @@ public class SnakePro extends BasicGame{
 					choosenNames[i] = s[0];
 					break;
 				}else {
-					choosenNames[i] = Integer.toString(i+1);
+					choosenNames[i] = "Player"+Integer.toString(i+1);
 				}
 			}
 			controller[i] = con;
@@ -330,6 +348,9 @@ public class SnakePro extends BasicGame{
 	@Override
 	public void init(GameContainer gc) throws SlickException {
 		player = gc.getInput().getControllerCount()+1;
+		if(player>8) {
+			player = 8;
+		}
 		Items.clear();
 		Items.add(new Image(ImageFil+ItemFil1).getScaledCopy(pieceWidth, pieceHeight).getScaledCopy(ItemScale));
 		Items.add(new Image(ImageFil+ItemFil2).getScaledCopy(pieceWidth, pieceHeight).getScaledCopy(ItemScale));
@@ -461,6 +482,50 @@ public class SnakePro extends BasicGame{
 				snakes.get(3).nextDir = Direction.right;
 			}
 		}
+		if(player > 4) {
+			if(controllerUp[3]) {
+				snakes.get(4).nextDir = Direction.up;
+			}else if(controllerDown[3]) {
+				snakes.get(4).nextDir = Direction.down;
+			}else if(controllerLeft[3]) {
+				snakes.get(4).nextDir = Direction.left;
+			}else if(controllerRight[3]) {
+				snakes.get(4).nextDir = Direction.right;
+			}
+		}
+		if(player > 5) {
+			if(controllerUp[4]) {
+				snakes.get(5).nextDir = Direction.up;
+			}else if(controllerDown[4]) {
+				snakes.get(5).nextDir = Direction.down;
+			}else if(controllerLeft[4]) {
+				snakes.get(5).nextDir = Direction.left;
+			}else if(controllerRight[4]) {
+				snakes.get(5).nextDir = Direction.right;
+			}
+		}
+		if(player > 6) {
+			if(controllerUp[5]) {
+				snakes.get(6).nextDir = Direction.up;
+			}else if(controllerDown[5]) {
+				snakes.get(6).nextDir = Direction.down;
+			}else if(controllerLeft[5]) {
+				snakes.get(6).nextDir = Direction.left;
+			}else if(controllerRight[5]) {
+				snakes.get(6).nextDir = Direction.right;
+			}
+		}
+		if(player > 7) {
+			if(controllerUp[6]) {
+				snakes.get(7).nextDir = Direction.up;
+			}else if(controllerDown[6]) {
+				snakes.get(7).nextDir = Direction.down;
+			}else if(controllerLeft[6]) {
+				snakes.get(7).nextDir = Direction.left;
+			}else if(controllerRight[6]) {
+				snakes.get(7).nextDir = Direction.right;
+			}
+		}
 		if(playing) {
 			gc.setMouseGrabbed(true);
 			List<Player> itemUser = new ArrayList<Player>();
@@ -475,6 +540,18 @@ public class SnakePro extends BasicGame{
 			}
 			if(lastIn.isButton1Pressed(2) || lastIn.isButton2Pressed(2) || lastIn.isButton3Pressed(2)) {
 				itemUser.add(snakes.get(3));
+			}
+			if(lastIn.isButton1Pressed(3) || lastIn.isButton2Pressed(3) || lastIn.isButton3Pressed(3)) {
+				itemUser.add(snakes.get(4));
+			}
+			if(lastIn.isButton1Pressed(4) || lastIn.isButton2Pressed(4) || lastIn.isButton3Pressed(4)) {
+				itemUser.add(snakes.get(5));
+			}
+			if(lastIn.isButton1Pressed(5) || lastIn.isButton2Pressed(5) || lastIn.isButton3Pressed(5)) {
+				itemUser.add(snakes.get(6));
+			}
+			if(lastIn.isButton1Pressed(6) || lastIn.isButton2Pressed(6) || lastIn.isButton3Pressed(6)) {
+				itemUser.add(snakes.get(7));
 			}
 			for(Player p:itemUser) {
 				if(p.alive) {
@@ -638,25 +715,25 @@ public class SnakePro extends BasicGame{
 					}
 				}
 				for(Boss b : bosses) {
-					if(deadDirs.size() == 0) {
-						int minDis = xPcs+yPcs;
-						Piece target = snakes.get(0).getHead();
-						for(Player p: snakes) {
-							if(p.alive) {
-								int dis = (int) p.getHead().getDis(b.getHead());
-								if(dis<minDis) {
-									minDis = dis;
-									target = p.getHead();
-								}
+					int minDis = xPcs+yPcs;
+					Piece target = snakes.get(0).getHead();
+					for(Player p: snakes) {
+						if(p.alive) {
+							int dis = (int) p.getHead().getDis(b.getHead());
+							if(dis<minDis) {
+								minDis = dis;
+								target = p.getHead();
 							}
 						}
-						if(target != null) {
-							b.calcDirSlow(mat, target);
-						}
-					}else {
-						b.nextDir = deadDirs.get(0);
+					}
+					if(target != null) {
+						b.calcDirSlow(mat, target);
+					}
+					if(deadDirs.size() > 0){
+						int idx = random.nextInt(deadDirs.size());
+						b.nextDir = deadDirs.get(idx);
 						b.changeDirection();
-						deadDirs.remove(0);
+						deadDirs.remove(idx);
 					}
 					b.update();
 				}
@@ -828,6 +905,9 @@ public class SnakePro extends BasicGame{
 					resetNames(gc);
 				}else if(lastIn.isKeyPressed(Input.KEY_R) && backFocus) {
 					player = gc.getInput().getControllerCount()+1;
+					if(player>8) {
+						player = 8;
+					}
 					initNames(gc);
 					resetNames(gc);
 				}

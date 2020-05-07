@@ -20,3 +20,4 @@ BossTimeAlive = 20.0
 ImageFileLocation = ImgDefault
 showFps = false
 setFullscreen = true
+Pieces on x-Axis = 64
