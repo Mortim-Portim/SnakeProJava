@@ -14,6 +14,7 @@ public class Boss extends Snake{
 	public int pieceTry = 0;
 	public int time;
 	public boolean[][] matrix;
+	public Player targetPlayer;
 	
 	public Boss(Image Head, int startLenght, int x, int y, int BossTime) throws SlickException {
 		super();

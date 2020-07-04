@@ -220,6 +220,7 @@ public class SnakePro extends BasicGame{
 	public boolean displayHallOfFame;
 	public boolean displayStats = false;
 	public Image statsImg;
+	public boolean lastFocus;
 
 	public SnakePro(String Settings) throws SlickException, FileNotFoundException {
 		super("SnakePro");
@@ -393,9 +394,6 @@ public class SnakePro extends BasicGame{
 	}
 	
 	public void resetNames(GameContainer gc) throws SlickException {
-		for(Player p:snakes) {
-			p.stats.writeStats();
-		}
 		snakes.clear();
 		for(int a=0; a<player; a++) {
 			int b = playerNum[a];
@@ -413,6 +411,9 @@ public class SnakePro extends BasicGame{
 	}
 	
 	public void reset(GameContainer gc) throws SlickException {
+		for(Player p:snakes) {
+			p.stats.writeStats();
+		}
 		resetNames(gc);
 		food.clear();
 		for(int i=0; i<foodCount; i++) {
@@ -582,6 +583,18 @@ public class SnakePro extends BasicGame{
 					bosses.add(new Boss(new Image(ImageFil+BossFil), bossLenght, xpos, ypos, bossTime));
 					bossSpawns.remove(i);
 					removeTimers.add(i);
+					
+					int minDis = xPcs+yPcs;
+					Boss b = bosses.get(bosses.size()-1);
+					for(Player p: snakes) {
+						if(p.alive) {
+							int dis = (int) p.getHead().getDis(b.getHead());
+							if(dis<minDis) {
+								minDis = dis;
+								b.targetPlayer = p;
+							}
+						}
+					}
 				}
 			}
 			for(Integer i : removeTimers) {
@@ -708,110 +721,35 @@ public class SnakePro extends BasicGame{
 						}
 					}
 				}
-				List<Direction> deadDirs = new ArrayList<Direction>();
-				List<Boolean> pressed = new ArrayList<Boolean>();
+				boolean change = false;
 				for(Player p : snakes) {
 					if(!p.alive) {
-						deadDirs.add(p.nextDir);
-						int snkIdx = snakes.indexOf(p);
-						if(snkIdx == 0) {
-							if(lastIn.isKeyDown(Input.KEY_UP) || 
-									lastIn.isKeyDown(Input.KEY_DOWN) ||
-									lastIn.isKeyDown(Input.KEY_LEFT) ||
-									lastIn.isKeyDown(Input.KEY_RIGHT)) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
+						int idx = snakes.indexOf(p);
+						if(idx == 0) {
+							if(lastIn.isKeyDown(Input.KEY_SPACE)) {
+								change = true;
 							}
-						}else if(snkIdx == 1) {
-							if(		controllerUp[0] ||
-									controllerDown[0] ||
-									controllerLeft[0] ||
-									controllerRight[0]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
-							}
-						}else if(snkIdx == 2) {
-							if(		controllerUp[1] ||
-									controllerDown[1] ||
-									controllerLeft[1] ||
-									controllerRight[1]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
-							}
-						}else if(snkIdx == 3) {
-							if(		controllerUp[2] ||
-									controllerDown[2] ||
-									controllerLeft[2] ||
-									controllerRight[2]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
-							}
-						}else if(snkIdx == 4) {
-							if(		controllerUp[3] ||
-									controllerDown[3] ||
-									controllerLeft[3] ||
-									controllerRight[3]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
-							}
-						}else if(snkIdx == 5) {
-							if(		controllerUp[6] ||
-									controllerDown[6] ||
-									controllerLeft[6] ||
-									controllerRight[6]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
-							}
-						}else if(snkIdx == 6) {
-							if(		controllerUp[7] ||
-									controllerDown[7] ||
-									controllerLeft[7] ||
-									controllerRight[7]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
-							}
-						}else if(snkIdx == 7) {
-							if(		controllerUp[8] ||
-									controllerDown[8] ||
-									controllerLeft[8] ||
-									controllerRight[8]) {
-								pressed.add(true);
-							}else {
-								pressed.add(false);
+						}else {
+							if(lastIn.isButton1Pressed(idx-1) || lastIn.isButton2Pressed(idx-1) || lastIn.isButton3Pressed(idx-1)) {
+								change = true;
 							}
 						}
 					}
 				}
 				for(Boss b : bosses) {
-					int minDis = xPcs+yPcs;
-					Piece target = snakes.get(0).getHead();
-					for(Player p: snakes) {
-						if(p.alive) {
-							int dis = (int) p.getHead().getDis(b.getHead());
-							if(dis<minDis) {
-								minDis = dis;
-								target = p.getHead();
+					if(change) {
+						while(!b.targetPlayer.alive || change) {
+							change = false;
+							int idx = snakes.indexOf(b.targetPlayer)+1;
+							if(idx < snakes.size()) {
+								b.targetPlayer = snakes.get(idx);
+							}else {
+								b.targetPlayer = snakes.get(0);
 							}
 						}
 					}
-					if(target != null) {
-						b.calcDirSlow(mat, target);
-					}
-					if(deadDirs.size() > 0){
-						int idx = random.nextInt(deadDirs.size());
-						if(pressed.get(idx)) {
-							b.nextDir = deadDirs.get(idx);
-							b.changeDirection();
-							deadDirs.remove(idx);
-						}
-					}
+					
+					b.calcDirSlow(mat, b.targetPlayer.getHead());
 					b.update();
 				}
 			}
@@ -948,6 +886,9 @@ public class SnakePro extends BasicGame{
 							for(TextField tf2 : nameFields) {
 								choosenNames[nameFields.indexOf(tf2)] = tf2.getText();
 							}
+							for(Player p:snakes) {
+								p.stats.writeStats();
+							}
 							resetNames(gc);
 							break;
 						}
@@ -957,6 +898,7 @@ public class SnakePro extends BasicGame{
 						backFocus = false;
 					}
 				}
+				lastFocus = backFocus;
 				if(lastIn.isKeyPressed(Input.KEY_A) && backFocus && playerNum.length < orPlayerNum.length) {
 					player ++;
 					List<Integer> newPlayNum = new ArrayList<Integer>();
@@ -968,6 +910,9 @@ public class SnakePro extends BasicGame{
 						playerNum[i] = newPlayNum.get(i);
 					}
 					playerNum[playerNum.length-1] = orPlayerNum[playerNum.length-1];
+					for(Player p:snakes) {
+						p.stats.writeStats();
+					}
 					resetNames(gc);
 				}else if(lastIn.isKeyPressed(Input.KEY_DELETE) && backFocus && playerNum.length > 1) {
 					player --;
@@ -979,6 +924,9 @@ public class SnakePro extends BasicGame{
 					for(int i=0; i<newPlayNum.size(); i++) {
 						playerNum[i] = newPlayNum.get(i);
 					}
+					for(Player p:snakes) {
+						p.stats.writeStats();
+					}
 					resetNames(gc);
 				}else if(lastIn.isKeyPressed(Input.KEY_R) && backFocus) {
 					player = gc.getInput().getControllerCount()+1;
@@ -986,6 +934,9 @@ public class SnakePro extends BasicGame{
 						player = 8;
 					}
 					initNames(gc);
+					for(Player p:snakes) {
+						p.stats.writeStats();
+					}
 					resetNames(gc);
 				}
 			}
@@ -1009,9 +960,12 @@ public class SnakePro extends BasicGame{
 			if(lastIn.isKeyPressed(Input.KEY_S) && (backFocus || displayStats)) {
 				displayHallOfFame =false;
 				displayStats = !displayStats;
+				
 				for(Player p:snakes) {
 					p.stats.writeStats();
 				}
+				
+				
 				JFreeChart jf = Statistics.showStats();
 				BufferedImage objBufferedImage = jf.createBufferedImage(screenX,screenY);
 				try {
